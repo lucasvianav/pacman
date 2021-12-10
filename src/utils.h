@@ -9,7 +9,8 @@
 #define SPACE ' '
 
 #define GHOST_DELAY 90000000
-#define INPUT_DELAY 1000
+#define INPUT_DELAY 10000
+#define PACMAN_DELAY 90000000
 #define MAP_REFRESH_DELAY 90000000
 
 struct Position {

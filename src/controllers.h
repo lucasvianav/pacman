@@ -10,7 +10,7 @@ private:
   Map map;
   WINDOW *window;
   bool ghost_above_dot;
-  int score;
+  unsigned int score;
   bool position_within_bounds(Position pos);
   void draw_map();
 
@@ -35,6 +35,9 @@ public:
 
   /* Did the player win? */
   bool won();
+
+  /* Check if a position is blocked from a certain direction. */
+  bool direction_blocked(Position pos, Move dir);
 };
 
 class Character {
@@ -48,9 +51,13 @@ public:
 };
 
 class Pacman : public Character {
+private:
+  Move direction;
+
 public:
   Pacman(GameController *gc, unsigned int x, unsigned int y);
-  void move(Move direction);
+  void turn(Move direction);
+  void move();
 };
 
 class Ghost : public Character {

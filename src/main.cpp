@@ -17,52 +17,63 @@ int main() {
   GameController gc;
   Pacman pac{&gc, 14, 20};
   Ghost inky{&gc, 12, 14};
+  WINDOW *window = gc.get_window();
 
-  auto keypress = [&pac, &gc]() {
-    int c;
-    Move direction;
+  auto keypress = [&pac, &gc, &window]() {
     int delay = INPUT_DELAY;
-    WINDOW *gamescr = gc.get_window();
 
     while (true) {
-      c = wgetch(gamescr);
+      int c = wgetch(window);
+      Move dir;
 
       switch (c) {
       case KEY_UP:
       case 'w':
       case 'k':
-        direction = UP;
+        dir = UP;
         break;
 
       case KEY_RIGHT:
       case 'd':
       case 'l':
-        direction = RIGHT;
+        dir = RIGHT;
         break;
 
       case KEY_DOWN:
       case 's':
       case 'j':
-        direction = DOWN;
+        dir = DOWN;
         break;
 
       case KEY_LEFT:
       case 'a':
       case 'h':
-        direction = LEFT;
+        dir = LEFT;
         break;
 
       default:
         continue;
       }
 
-      pac.move(static_cast<Move>(direction));
+      pac.turn(dir);
 
       if (should_quit() || gc.won()) {
         break;
       }
 
       this_thread::sleep_for(chrono::nanoseconds(delay));
+    }
+  };
+
+  auto pacman = [&pac, &gc, &window]() {
+    while (true) {
+      pac.move();
+
+      if (should_quit() || gc.won()) {
+        break;
+      }
+
+      this_thread::sleep_for(chrono::nanoseconds(PACMAN_DELAY));
     }
   };
 
@@ -74,7 +85,7 @@ int main() {
         char score[15];
         sprintf(score, "GAME OVER! %d", gc.get_score());
 
-        waddstr(gc.get_window(), score);
+        waddstr(window, score);
         break;
       }
 
@@ -95,10 +106,12 @@ int main() {
   };
 
   thread t_kp = thread(keypress);
+  thread t_pc = thread(pacman);
   thread t_gc = thread(game_controller);
   thread t_ag = thread(automove_ghosts);
 
   t_kp.join();
+  t_pc.join();
   t_gc.join();
   t_ag.join();
 
