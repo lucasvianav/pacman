@@ -66,6 +66,11 @@ Position GameController::move(Position old_pos, Position new_pos) {
     wchar_t new_pos_new_char = old_pos_cur_char;
 
     switch (new_pos_cur_char) {
+    case GHOST_ICON:
+      if (!is_pacman) {
+        return old_pos;
+      }
+
     case PACMAN_ICON:
       quit();
       break;
