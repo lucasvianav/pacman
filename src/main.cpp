@@ -31,18 +31,23 @@ struct Position {
   }
 };
 
-class Game_Controller {
+class GameController {
 private:
   Map map = Map();
+
+  bool position_within_bounds(Position pos) {
+    int n_rows = this->map.get_n_rows();
+    int n_cols = this->map.get_n_cols();
+
+    return (pos.pos_X >= 0 && pos.pos_X < n_cols) &&
+           (pos.pos_Y >= 0 && pos.pos_Y < n_rows);
+  }
 
 public:
   void load_map() {
     vector<vector<char>> map_chars = this->map.get_map();
     int n_rows = this->map.get_n_rows();
     int n_cols = this->map.get_n_cols();
-
-    cout << n_rows;
-    cout << n_cols;
 
     for (int i = 0; i < n_rows; i++) {
       for (int j = 0; j < n_cols; j++) {
@@ -54,6 +59,7 @@ public:
   }
 
   void update_map(char character, Position previous, Position current) {
+    // TODO: remove
     // Position previous = pac.get_previous_position();
     // Position current = pac.get_current_position();
 
@@ -75,32 +81,20 @@ public:
 
   bool is_position_valid(Position pos, bool is_pacman) {
     vector<vector<char>> map_chars = this->map.get_map();
-    int n_rows = this->map.get_n_rows();
-    int n_cols = this->map.get_n_cols();
+    char c = map_chars[pos.pos_Y][pos.pos_X];
 
-    if (is_pacman) {
-      return ((pos.pos_X >= 0 && pos.pos_X < n_cols) &&
-              (pos.pos_Y >= 0 && pos.pos_Y < n_rows) &&
-              (map_chars[pos.pos_Y][pos.pos_X] == 'o' ||
-               map_chars[pos.pos_Y][pos.pos_X] == ' '));
-    } else {
-      return ((pos.pos_X >= 0 && pos.pos_X < n_cols) &&
-              (pos.pos_Y >= 0 && pos.pos_Y < n_rows) &&
-              (map_chars[pos.pos_Y][pos.pos_X] == 'o' ||
-               map_chars[pos.pos_Y][pos.pos_X] == ' ' ||
-               map_chars[pos.pos_Y][pos.pos_X] == '@' ||
-               map_chars[pos.pos_Y][pos.pos_X] == '%'));
-    }
+    return (this->position_within_bounds(pos) &&
+            (c == 'o' || c == ' ' || (!is_pacman && (c == '@' || c == '%'))));
   }
 };
 
 class Pacman {
-  Game_Controller *gc;
+  GameController *gc;
   Position previous_pos;
   Position current_pos;
 
 public:
-  Pacman(Game_Controller *game_ctrl, unsigned int pos_X, unsigned int pos_Y) {
+  Pacman(GameController *game_ctrl, unsigned int pos_X, unsigned int pos_Y) {
     gc = game_ctrl;
     current_pos.pos_X = pos_X;
     current_pos.pos_Y = pos_Y;
@@ -147,12 +141,12 @@ public:
 };
 
 class Ghost {
-  Game_Controller *gc;
+  GameController *gc;
   Position previous_pos;
   Position current_pos;
 
 public:
-  Ghost(Game_Controller *game_ctrl, unsigned int pos_X, unsigned int pos_Y) {
+  Ghost(GameController *game_ctrl, unsigned int pos_X, unsigned int pos_Y) {
     gc = game_ctrl;
     current_pos.pos_X = pos_X;
     current_pos.pos_Y = pos_Y;
@@ -223,7 +217,7 @@ public:
 };
 
 int main() {
-  Game_Controller game_ctrl;
+  GameController game_ctrl;
   Pacman pac{&game_ctrl, 14, 20};
   Ghost inky{&game_ctrl, 12, 14};
 
