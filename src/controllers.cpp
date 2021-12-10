@@ -109,7 +109,7 @@ int GameController::get_score() { return this->score; }
 
 bool GameController::won() { return this->score == this->map.get_n_dots(); }
 
-bool GameController::direction_blocked(Position pos, Move dir) {
+bool GameController::direction_blocked(Position pos, Direction dir) {
   wchar_t character = this->map.get_char(pos.move(dir));
   return character != DOT && character != SPACE;
 }
@@ -129,7 +129,7 @@ Character::Character(GameController *gc, unsigned int x, unsigned int y) {
   this->pos->y = y;
 }
 
-void Character::move(Move direction) {
+void Character::move(Direction direction) {
   Position intended_pos = (*this->pos);
   intended_pos.move(direction);
 
@@ -156,7 +156,7 @@ Pacman::Pacman(GameController *gc, unsigned int x, unsigned int y)
 
 void Pacman::move() { Character::move(this->direction); }
 
-void Pacman::turn(Move dir) {
+void Pacman::turn(Direction dir) {
   bool is_blocked = this->gc->direction_blocked(*this->pos, dir);
   if (!is_blocked) {
     this->direction = dir;
@@ -175,6 +175,6 @@ Ghost::Ghost(GameController *gc, unsigned int x, unsigned int y)
     : Character(gc, x, y) {}
 
 void Ghost::move() {
-  Move direction = static_cast<Move>(rand() % 4);
+  Direction direction = static_cast<Direction>(rand() % 4);
   Character::move(direction);
 }

@@ -24,7 +24,7 @@ int main() {
 
     while (true) {
       int c = wgetch(window);
-      Move dir;
+      Direction dir;
 
       switch (c) {
       case KEY_UP:

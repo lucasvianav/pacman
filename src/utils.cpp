@@ -14,7 +14,7 @@ Position &Position::operator=(const Position &p) {
   return *this;
 }
 
-Position Position::move(Move dir) {
+Position Position::move(Direction dir) {
   switch (dir) {
   case UP:
     this->y--;

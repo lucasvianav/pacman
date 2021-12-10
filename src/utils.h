@@ -13,13 +13,13 @@
 #define PACMAN_DELAY 90000000
 #define MAP_REFRESH_DELAY 90000000
 
-enum Move { UP = 0, DOWN = 1, LEFT = 2, RIGHT = 3 };
+enum Direction { UP = 0, DOWN = 1, LEFT = 2, RIGHT = 3 };
 
 struct Position {
 public:
   unsigned int x;
   unsigned int y;
-  Position move(Move dir);
+  Position move(Direction dir);
   bool operator==(const Position p);
   bool operator!=(const Position p);
   Position &operator=(const Position &p);

@@ -17,7 +17,7 @@ private:
 public:
   GameController();
 
-  /* Move the charater from one position to another.
+  /* Direction the charater from one position to another.
    * @param old_pos the target's original position.
    * @param new_pos the target's intended position.
    * @return the target's current position (after the move)
@@ -37,7 +37,7 @@ public:
   bool won();
 
   /* Check if a position is blocked from a certain direction. */
-  bool direction_blocked(Position pos, Move dir);
+  bool direction_blocked(Position pos, Direction dir);
 };
 
 class Character {
@@ -47,16 +47,16 @@ protected:
 
 public:
   Character(GameController *gc, unsigned int x, unsigned int y);
-  void move(Move direction);
+  void move(Direction direction);
 };
 
 class Pacman : public Character {
 private:
-  Move direction;
+  Direction direction;
 
 public:
   Pacman(GameController *gc, unsigned int x, unsigned int y);
-  void turn(Move direction);
+  void turn(Direction direction);
   void move();
 };
 
