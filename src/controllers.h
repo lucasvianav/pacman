@@ -11,7 +11,6 @@ private:
   WINDOW *window;
   bool ghost_above_dot;
   unsigned int score;
-  bool position_within_bounds(Position pos);
   void draw_map();
 
 public:

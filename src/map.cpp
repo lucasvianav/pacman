@@ -58,3 +58,8 @@ unsigned int Map::get_n_dots() { return this->n_dots; };
 void Map::update_map(Position pos, char value) {
   this->map[pos.y][pos.x] = value;
 }
+
+bool Map::position_valid(Position pos) {
+  return (pos.x >= 0 && pos.x < this->n_cols) &&
+         (pos.y >= 0 && pos.y < this->n_rows);
+}

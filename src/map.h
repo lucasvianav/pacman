@@ -21,6 +21,7 @@ public:
   unsigned int get_n_cols();
   unsigned int get_n_dots();
   void update_map(Position pos, char value);
+  bool position_valid(Position pos);
 };
 
 #endif

@@ -27,13 +27,6 @@ GameController::GameController() {
   this->score = 0;
 }
 
-bool GameController::position_within_bounds(Position pos) {
-  unsigned int n_rows = this->map.get_n_rows();
-  unsigned int n_cols = this->map.get_n_cols();
-
-  return (pos.x >= 0 && pos.x < n_cols) && (pos.y >= 0 && pos.y < n_rows);
-}
-
 void GameController::draw_map() {
   vector<vector<wchar_t>> map_chars = this->map.get_map();
   unsigned int n_rows = this->map.get_n_rows();
@@ -55,7 +48,7 @@ void GameController::draw_map() {
 }
 
 Position GameController::move(Position old_pos, Position new_pos) {
-  if (this->position_within_bounds(new_pos) && old_pos != new_pos) {
+  if (this->map.position_valid(new_pos) && old_pos != new_pos) {
     wchar_t old_pos_cur_char = this->map.get_char(old_pos);
     wchar_t new_pos_cur_char = this->map.get_char(new_pos);
 
