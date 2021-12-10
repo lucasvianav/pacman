@@ -9,9 +9,28 @@ bool Position::operator!=(const Position p) {
 }
 
 Position &Position::operator=(const Position &p) {
-  x = p.x;
-  y = p.y;
-  return (*this);
+  this->x = p.x;
+  this->y = p.y;
+  return *this;
+}
+
+Position Position::move(Move dir) {
+  switch (dir) {
+  case UP:
+    this->y--;
+    break;
+  case DOWN:
+    this->y++;
+    break;
+  case LEFT:
+    this->x--;
+    break;
+  case RIGHT:
+    this->x++;
+    break;
+  }
+
+  return *this;
 }
 
 bool should_quit_ = false;

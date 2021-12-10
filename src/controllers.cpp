@@ -55,7 +55,7 @@ void GameController::draw_map() {
 }
 
 Position GameController::move(Position old_pos, Position new_pos) {
-  if (this->position_within_bounds(new_pos)) {
+  if (this->position_within_bounds(new_pos) && old_pos != new_pos) {
     wchar_t old_pos_cur_char = this->map.get_char(old_pos);
     wchar_t new_pos_cur_char = this->map.get_char(new_pos);
 
@@ -110,22 +110,7 @@ int GameController::get_score() { return this->score; }
 bool GameController::won() { return this->score == this->map.get_n_dots(); }
 
 bool GameController::direction_blocked(Position pos, Move dir) {
-  switch (dir) {
-  case UP:
-    pos.y--;
-    break;
-  case DOWN:
-    pos.y++;
-    break;
-  case LEFT:
-    pos.x--;
-    break;
-  case RIGHT:
-    pos.x++;
-    break;
-  }
-  wchar_t character = this->map.get_char(pos);
-
+  wchar_t character = this->map.get_char(pos.move(dir));
   return character != DOT && character != SPACE;
 }
 
@@ -145,24 +130,8 @@ Character::Character(GameController *gc, unsigned int x, unsigned int y) {
 }
 
 void Character::move(Move direction) {
-  Position intended_pos = {this->pos->x, this->pos->y};
-
-  switch (direction) {
-  case UP:
-    intended_pos.y--;
-    break;
-  case DOWN:
-    intended_pos.y++;
-    break;
-  case LEFT:
-    intended_pos.x--;
-    break;
-  case RIGHT:
-    intended_pos.x++;
-    break;
-  default:
-    return;
-  }
+  Position intended_pos = (*this->pos);
+  intended_pos.move(direction);
 
   Position new_pos = gc->move(*this->pos, intended_pos);
 
