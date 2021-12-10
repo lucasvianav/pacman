@@ -1,4 +1,9 @@
-# pacman
-Para compilar: g++ -pthread main.cpp -o main -lncurses
+# Pacman
 
-Para executar: ./main
+## `make all`
+
+Para compilar.
+
+## `make run`
+
+Para executar.
