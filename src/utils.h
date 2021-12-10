@@ -1,7 +1,7 @@
-#include <vector>
-
 #ifndef POSITION_H
 #define POSITION_H
+
+#include <vector>
 
 using namespace std;
 

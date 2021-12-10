@@ -1,6 +1,4 @@
 #include "controllers.h"
-#include "map.h"
-#include "utils.h"
 #include <ncurses.h>
 
 using namespace std;

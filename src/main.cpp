@@ -1,5 +1,6 @@
 #include "controllers.h"
 #include "map.h"
+#include "pacman.h"
 #include "utils.h"
 #include <ncurses.h>
 #include <string>
@@ -7,58 +8,6 @@
 #include <unistd.h>
 
 using namespace std;
-
-class Pacman {
-  GameController *gc;
-  Position previous_pos;
-  Position current_pos;
-
-public:
-  Pacman(GameController *game_ctrl, unsigned int x, unsigned int y) {
-    gc = game_ctrl;
-    current_pos.x = x;
-    current_pos.y = y;
-    previous_pos = current_pos;
-  }
-
-  Position get_previous_position() { return previous_pos; }
-
-  Position get_current_position() { return current_pos; }
-
-  void update_position(Move direction) {
-    Position new_pos = current_pos;
-
-    if (direction == UP) {
-      new_pos.y--;
-
-      if (gc->is_position_valid(new_pos, true)) {
-        previous_pos = current_pos;
-        current_pos.y--;
-      }
-    } else if (direction == DOWN) {
-      new_pos.y++;
-
-      if (gc->is_position_valid(new_pos, true)) {
-        previous_pos = current_pos;
-        current_pos.y++;
-      }
-    } else if (direction == LEFT) {
-      new_pos.x--;
-
-      if (gc->is_position_valid(new_pos, true)) {
-        previous_pos = current_pos;
-        current_pos.x--;
-      }
-    } else if (direction == RIGHT) {
-      new_pos.x++;
-
-      if (gc->is_position_valid(new_pos, true)) {
-        previous_pos = current_pos;
-        current_pos.x++;
-      }
-    }
-  }
-};
 
 class Ghost {
   GameController *gc;

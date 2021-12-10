@@ -1,7 +1,7 @@
-#include <vector>
-
 #ifndef MAP_H
 #define MAP_H
+
+#include <vector>
 
 using namespace std;
 

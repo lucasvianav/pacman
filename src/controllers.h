@@ -1,8 +1,8 @@
-#include "map.h"
-#include "utils.h"
-
 #ifndef CONTROLLERS_H
 #define CONTROLLERS_H
+
+#include "map.h"
+#include "utils.h"
 
 class GameController {
 private:
