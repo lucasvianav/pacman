@@ -1,12 +1,23 @@
 #include "controllers.h"
-#include <ncurses.h>
+#include <curses.h>
 #include <stdlib.h>
 
 using namespace std;
 
 // GameController
 
-GameController::GameController() { this->map = Map(); }
+GameController::GameController() {
+  // initializes ncurses
+  this->gamescr = initscr();
+  keypad(this->gamescr, true);
+  nodelay(this->gamescr, true);
+  noecho();
+  curs_set(false);
+  cbreak();
+
+  this->map = Map();
+  this->draw_map();
+}
 
 bool GameController::position_within_bounds(Position pos) {
   unsigned int n_rows = this->map.get_n_rows();
@@ -22,33 +33,57 @@ void GameController::draw_map() {
 
   for (unsigned int i = 0; i < n_rows; i++) {
     for (unsigned int j = 0; j < n_cols; j++) {
-      addch(map_chars[i][j]);
+      waddch(this->gamescr, map_chars[i][j]);
     }
 
-    addch('\n');
+    waddch(this->gamescr, '\n');
   }
 }
 
-void GameController::update_map(char character, Position previous,
-                                Position current) {
-  // TODO: remove
-  // Position previous = pac.get_previous_position();
-  // Position current = pac.get_current_position();
+Position GameController::move(Position old_pos, Position new_pos,
+                              bool is_pacman) {
+  if (this->position_within_bounds(new_pos)) {
+    wchar_t old_pos_cur_char = this->map.get_char(old_pos);
+    wchar_t new_pos_cur_char = this->map.get_char(new_pos);
 
-  // printw(to_string(previous.x).c_str());
-  // printw(to_string(previous.y).c_str());
-  // addch('\n');
+    wchar_t old_pos_new_char = ' ';
+    wchar_t new_pos_new_char = old_pos_cur_char;
 
-  // printw(to_string(current.x).c_str());
-  // printw(to_string(current.y).c_str());
-  // addch('\n');
+    switch (new_pos_cur_char) {
+    case PACMAN_ICON:
+    case '.':
+      if (!is_pacman) {
+        new_pos_new_char = '&';
+      }
+      break;
 
-  this->map.update_map(previous.x, previous.y, ' ');
-  this->map.update_map(current.x, current.y, character);
+    case ' ':
+      if (old_pos_cur_char == '&') {
+        new_pos_new_char = GHOST_ICON;
+      }
+      break;
 
+    default:
+      return old_pos;
+    }
+
+    if (old_pos_cur_char == '&') {
+      old_pos_new_char = '.';
+    }
+
+    this->map.update_map(old_pos, old_pos_new_char);
+    this->map.update_map(new_pos, new_pos_new_char);
+
+    return new_pos;
+  }
+
+  return old_pos;
+}
+
+void GameController::refresh() {
   erase();
-  refresh();
-  load_map();
+  wrefresh(this->gamescr);
+  this->draw_map();
 }
 
 bool GameController::is_position_valid(Position pos) {
@@ -58,59 +93,42 @@ bool GameController::is_position_valid(Position pos) {
   return (in_bounds && (c == '.' || c == ' ' || c == '@'));
 }
 
+WINDOW *GameController::get_screen() { return this->gamescr; }
+
 // Character
 
 Character::Character(GameController *gc, unsigned int x, unsigned int y) {
   this->gc = gc;
-  this->current_pos.x = x;
-  this->current_pos.y = y;
-  this->previous_pos = current_pos;
+  this->pos = (Position *)malloc(sizeof(Position));
+  this->pos->x = x;
+  this->pos->y = y;
 }
 
-Position Character::get_previous_position() { return this->previous_pos; }
-
-Position Character::get_current_position() { return this->current_pos; }
-
-void Character::update_position(Move direction, bool is_pacman) {
-  Position new_pos = current_pos;
+void Character::move(Move direction, bool is_pacman) {
+  Position intended_pos = *this->pos;
 
   switch (direction) {
   case UP:
-    new_pos.y--;
-
-    if (gc->is_position_valid(new_pos, is_pacman)) {
-      previous_pos = current_pos;
-      current_pos.y--;
-    }
-
+    intended_pos.y--;
     break;
   case DOWN:
-    new_pos.y++;
-
-    if (gc->is_position_valid(new_pos, is_pacman)) {
-      previous_pos = current_pos;
-      current_pos.y++;
-    }
-
+    intended_pos.y++;
     break;
   case LEFT:
-    new_pos.x--;
-
-    if (gc->is_position_valid(new_pos, is_pacman)) {
-      previous_pos = current_pos;
-      current_pos.x--;
-    }
-
+    intended_pos.x--;
     break;
   case RIGHT:
-    new_pos.x++;
-
-    if (gc->is_position_valid(new_pos, is_pacman)) {
-      previous_pos = current_pos;
-      current_pos.x++;
-    }
-
+    intended_pos.x++;
     break;
+  default:
+    return;
+  }
+
+  Position new_pos = gc->move(*this->pos, intended_pos, is_pacman);
+
+  if (new_pos != *this->pos) {
+    this->pos->x = new_pos.x;
+    this->pos->y = new_pos.y;
   }
 }
 
@@ -119,18 +137,14 @@ void Character::update_position(Move direction, bool is_pacman) {
 Pacman::Pacman(GameController *gc, unsigned int x, unsigned int y)
     : Character(gc, x, y) {}
 
-void Pacman::update_position(Move direction) {
-  Character::update_position(direction, true);
-}
+void Pacman::move(Move direction) { Character::move(direction, true); }
 
 // Ghost
 
 Ghost::Ghost(GameController *gc, unsigned int x, unsigned int y)
     : Character(gc, x, y) {}
 
-void Ghost::update_position() {
-  int index = rand() % 4;
-  Move directions[] = {UP, DOWN, LEFT, RIGHT};
-  Move direction = directions[index];
-  Character::update_position(direction, false);
+void Ghost::move() {
+  Move direction = static_cast<Move>(rand() % 4);
+  Character::move(direction, false);
 }
