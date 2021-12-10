@@ -9,19 +9,19 @@ using namespace std;
 GameController::GameController() { this->map = Map(); }
 
 bool GameController::position_within_bounds(Position pos) {
-  int n_rows = this->map.get_n_rows();
-  int n_cols = this->map.get_n_cols();
+  unsigned int n_rows = this->map.get_n_rows();
+  unsigned int n_cols = this->map.get_n_cols();
 
   return (pos.x >= 0 && pos.x < n_cols) && (pos.y >= 0 && pos.y < n_rows);
 }
 
-void GameController::load_map() {
-  vector<vector<char>> map_chars = this->map.get_map();
-  int n_rows = this->map.get_n_rows();
-  int n_cols = this->map.get_n_cols();
+void GameController::draw_map() {
+  vector<vector<wchar_t>> map_chars = this->map.get_map();
+  unsigned int n_rows = this->map.get_n_rows();
+  unsigned int n_cols = this->map.get_n_cols();
 
-  for (int i = 0; i < n_rows; i++) {
-    for (int j = 0; j < n_cols; j++) {
+  for (unsigned int i = 0; i < n_rows; i++) {
+    for (unsigned int j = 0; j < n_cols; j++) {
       addch(map_chars[i][j]);
     }
 
@@ -51,12 +51,11 @@ void GameController::update_map(char character, Position previous,
   load_map();
 }
 
-bool GameController::is_position_valid(Position pos, bool is_pacman) {
-  vector<vector<char>> map_chars = this->map.get_map();
-  char c = map_chars[pos.y][pos.x];
+bool GameController::is_position_valid(Position pos) {
+  wchar_t c = this->map.get_char(pos);
+  bool in_bounds = this->position_within_bounds(pos);
 
-  return (this->position_within_bounds(pos) &&
-          (c == 'o' || c == ' ' || (!is_pacman && (c == '@' || c == '%'))));
+  return (in_bounds && (c == '.' || c == ' ' || c == '@'));
 }
 
 // Character
