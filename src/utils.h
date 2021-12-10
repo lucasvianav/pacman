@@ -3,8 +3,10 @@
 
 #include <vector>
 
+#define DOT '.'
 #define GHOST_ICON '%'
 #define PACMAN_ICON '@'
+#define SPACE ' '
 
 #define GHOST_DELAY 90000000
 #define INPUT_DELAY 1000

@@ -8,9 +8,10 @@
 class GameController {
 private:
   Map map;
+  WINDOW *gamescr;
+  bool ghost_above_dot;
   bool position_within_bounds(Position pos);
   void draw_map();
-  WINDOW *gamescr;
 
 public:
   GameController();
@@ -20,13 +21,10 @@ public:
    * @param new_pos the target's intended position.
    * @return the target's current position (after the move)
    */
-  Position move(Position old_pos, Position new_pos, bool is_pacman);
+  Position move(Position old_pos, Position new_pos);
 
   /* Refresh/redraw the game's map. */
   void refresh();
-
-  /* Check if a position is valid for either Pacman or a ghost. */
-  bool is_position_valid(Position pos);
 
   /* Getter for the game window. */
   WINDOW *get_screen();
@@ -39,7 +37,7 @@ protected:
 
 public:
   Character(GameController *gc, unsigned int x, unsigned int y);
-  void move(Move direction, bool is_pacman);
+  void move(Move direction);
 };
 
 class Pacman : public Character {
