@@ -32,6 +32,9 @@ public:
 
   /* Getter for the game score. */
   int get_score();
+
+  /* Did the player win? */
+  bool won();
 };
 
 class Character {

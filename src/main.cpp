@@ -58,7 +58,7 @@ int main() {
 
       pac.move(static_cast<Move>(direction));
 
-      if (should_quit()) {
+      if (should_quit() || gc.won()) {
         break;
       }
 
@@ -70,7 +70,7 @@ int main() {
     while (true) {
       gc.refresh();
 
-      if (should_quit()) {
+      if (should_quit() || gc.won()) {
         char score[15];
         sprintf(score, "GAME OVER! %d", gc.get_score());
 
@@ -86,7 +86,7 @@ int main() {
     while (true) {
       inky.move();
 
-      if (should_quit()) {
+      if (should_quit() || gc.won()) {
         break;
       }
 

@@ -107,6 +107,8 @@ WINDOW *GameController::get_window() { return this->window; }
 
 int GameController::get_score() { return this->score; }
 
+bool GameController::won() { return this->score == this->map.get_n_dots(); }
+
 /*
  *  ____ _   _    _    ____      _    ____ _____ _____ ____
  * / ___| | | |  / \  |  _ \    / \  / ___|_   _| ____|  _ \
