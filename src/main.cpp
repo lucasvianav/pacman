@@ -3,6 +3,7 @@
 #include "utils.h"
 #include <chrono>
 #include <clocale>
+#include <cstdio>
 #include <ncurses.h>
 #include <string>
 #include <thread>
@@ -21,7 +22,7 @@ int main() {
     int c;
     Move direction;
     int delay = INPUT_DELAY;
-    WINDOW *gamescr = gc.get_screen();
+    WINDOW *gamescr = gc.get_window();
 
     while (true) {
       c = wgetch(gamescr);
@@ -70,7 +71,10 @@ int main() {
       gc.refresh();
 
       if (should_quit()) {
-        waddstr(gc.get_screen(), "GAME OVER!");
+        char score[15];
+        sprintf(score, "GAME OVER! %d", gc.get_score());
+
+        waddstr(gc.get_window(), score);
         break;
       }
 

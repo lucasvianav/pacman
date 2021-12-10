@@ -8,8 +8,9 @@
 class GameController {
 private:
   Map map;
-  WINDOW *gamescr;
+  WINDOW *window;
   bool ghost_above_dot;
+  int score;
   bool position_within_bounds(Position pos);
   void draw_map();
 
@@ -27,7 +28,10 @@ public:
   void refresh();
 
   /* Getter for the game window. */
-  WINDOW *get_screen();
+  WINDOW *get_window();
+
+  /* Getter for the game score. */
+  int get_score();
 };
 
 class Character {

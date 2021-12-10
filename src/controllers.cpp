@@ -4,13 +4,19 @@
 
 using namespace std;
 
-// GameController
+/*
+ *  ____                       ____            _             _ _
+ * / ___| __ _ _ __ ___   ___ / ___|___  _ __ | |_ _ __ ___ | | | ___ _ __
+ *| |  _ / _` | '_ ` _ \ / _ \ |   / _ \| '_ \| __| '__/ _ \| | |/ _ \ '__|
+ *| |_| | (_| | | | | | |  __/ |__| (_) | | | | |_| | | (_) | | |  __/ |
+ * \____|\__,_|_| |_| |_|\___|\____\___/|_| |_|\__|_|  \___/|_|_|\___|_|
+ */
 
 GameController::GameController() {
   // initializes ncurses
-  this->gamescr = initscr();
-  keypad(this->gamescr, true);
-  nodelay(this->gamescr, true);
+  this->window = initscr();
+  keypad(this->window, true);
+  nodelay(this->window, true);
   noecho();
   curs_set(false);
   cbreak();
@@ -18,6 +24,7 @@ GameController::GameController() {
   this->map = Map();
   this->draw_map();
   this->ghost_above_dot = false;
+  this->score = 0;
 }
 
 bool GameController::position_within_bounds(Position pos) {
@@ -34,10 +41,16 @@ void GameController::draw_map() {
 
   for (unsigned int i = 0; i < n_rows; i++) {
     for (unsigned int j = 0; j < n_cols; j++) {
-      waddch(this->gamescr, map_chars[i][j]);
+      waddch(this->window, map_chars[i][j]);
     }
 
-    waddch(this->gamescr, '\n');
+    if (i == 0) {
+      char score[21];
+      sprintf(score, "      SCORE: %d/%d", this->score, this->map.get_n_dots());
+      waddstr(this->window, score);
+    }
+
+    waddch(this->window, '\n');
   }
 }
 
@@ -58,7 +71,9 @@ Position GameController::move(Position old_pos, Position new_pos) {
       break;
 
     case DOT:
-      if (!is_pacman) {
+      if (is_pacman) {
+        this->score++;
+      } else {
         this->ghost_above_dot = true;
       }
       break;
@@ -84,13 +99,21 @@ Position GameController::move(Position old_pos, Position new_pos) {
 
 void GameController::refresh() {
   erase();
-  wrefresh(this->gamescr);
+  wrefresh(this->window);
   this->draw_map();
 }
 
-WINDOW *GameController::get_screen() { return this->gamescr; }
+WINDOW *GameController::get_window() { return this->window; }
 
-// Character
+int GameController::get_score() { return this->score; }
+
+/*
+ *  ____ _   _    _    ____      _    ____ _____ _____ ____
+ * / ___| | | |  / \  |  _ \    / \  / ___|_   _| ____|  _ \
+ *| |   | |_| | / _ \ | |_) |  / _ \| |     | | |  _| | |_) |
+ *| |___|  _  |/ ___ \|  _ <  / ___ \ |___  | | | |___|  _ <
+ * \____|_| |_/_/   \_\_| \_\/_/   \_\____| |_| |_____|_| \_\
+ */
 
 Character::Character(GameController *gc, unsigned int x, unsigned int y) {
   this->gc = gc;
@@ -127,14 +150,26 @@ void Character::move(Move direction) {
   }
 }
 
-// Pacman
+/*
+ * ____   _    ____ __  __    _    _   _
+ *|  _ \ / \  / ___|  \/  |  / \  | \ | |
+ *| |_) / _ \| |   | |\/| | / _ \ |  \| |
+ *|  __/ ___ \ |___| |  | |/ ___ \| |\  |
+ *|_| /_/   \_\____|_|  |_/_/   \_\_| \_|
+ */
 
 Pacman::Pacman(GameController *gc, unsigned int x, unsigned int y)
     : Character(gc, x, y) {}
 
 void Pacman::move(Move direction) { Character::move(direction); }
 
-// Ghost
+/*
+ *  ____ _   _  ___  ____ _____
+ * / ___| | | |/ _ \/ ___|_   _|
+ *| |  _| |_| | | | \___ \ | |
+ *| |_| |  _  | |_| |___) || |
+ * \____|_| |_|\___/|____/ |_|
+ */
 
 Ghost::Ghost(GameController *gc, unsigned int x, unsigned int y)
     : Character(gc, x, y) {}
