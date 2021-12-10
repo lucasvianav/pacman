@@ -3,8 +3,6 @@
 
 #include <vector>
 
-using namespace std;
-
 struct Position {
 public:
   unsigned int x;

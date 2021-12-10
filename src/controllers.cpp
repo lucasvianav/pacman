@@ -1,7 +1,10 @@
 #include "controllers.h"
 #include <ncurses.h>
+#include <stdlib.h>
 
 using namespace std;
+
+// GameController
 
 GameController::GameController() { this->map = Map(); }
 
@@ -54,4 +57,81 @@ bool GameController::is_position_valid(Position pos, bool is_pacman) {
 
   return (this->position_within_bounds(pos) &&
           (c == 'o' || c == ' ' || (!is_pacman && (c == '@' || c == '%'))));
+}
+
+// Character
+
+Character::Character(GameController *gc, unsigned int x, unsigned int y) {
+  this->gc = gc;
+  this->current_pos.x = x;
+  this->current_pos.y = y;
+  this->previous_pos = current_pos;
+}
+
+Position Character::get_previous_position() { return this->previous_pos; }
+
+Position Character::get_current_position() { return this->current_pos; }
+
+void Character::update_position(Move direction, bool is_pacman) {
+  Position new_pos = current_pos;
+
+  switch (direction) {
+  case UP:
+    new_pos.y--;
+
+    if (gc->is_position_valid(new_pos, is_pacman)) {
+      previous_pos = current_pos;
+      current_pos.y--;
+    }
+
+    break;
+  case DOWN:
+    new_pos.y++;
+
+    if (gc->is_position_valid(new_pos, is_pacman)) {
+      previous_pos = current_pos;
+      current_pos.y++;
+    }
+
+    break;
+  case LEFT:
+    new_pos.x--;
+
+    if (gc->is_position_valid(new_pos, is_pacman)) {
+      previous_pos = current_pos;
+      current_pos.x--;
+    }
+
+    break;
+  case RIGHT:
+    new_pos.x++;
+
+    if (gc->is_position_valid(new_pos, is_pacman)) {
+      previous_pos = current_pos;
+      current_pos.x++;
+    }
+
+    break;
+  }
+}
+
+// Pacman
+
+Pacman::Pacman(GameController *gc, unsigned int x, unsigned int y)
+    : Character(gc, x, y) {}
+
+void Pacman::update_position(Move direction) {
+  Character::update_position(direction, true);
+}
+
+// Ghost
+
+Ghost::Ghost(GameController *gc, unsigned int x, unsigned int y)
+    : Character(gc, x, y) {}
+
+void Ghost::update_position() {
+  int index = rand() % 4;
+  Move directions[] = {UP, DOWN, LEFT, RIGHT};
+  Move direction = directions[index];
+  Character::update_position(direction, false);
 }
