@@ -1,92 +1,12 @@
+#include "controllers.h"
 #include "map.h"
-#include <iostream>
+#include "utils.h"
 #include <ncurses.h>
-#include <stdlib.h>
 #include <string>
 #include <thread>
 #include <unistd.h>
-#include <vector>
 
 using namespace std;
-
-enum Move { UP = 119, DOWN = 115, LEFT = 97, RIGHT = 100 };
-
-struct Position {
-  unsigned int pos_X;
-  unsigned int pos_Y;
-
-  bool operator==(const Position p) {
-    if ((pos_X == p.pos_X) && (pos_Y == p.pos_Y)) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  Position &operator=(const Position &p) {
-    pos_X = p.pos_X;
-    pos_Y = p.pos_Y;
-
-    return (*this);
-  }
-};
-
-class GameController {
-private:
-  Map map = Map();
-
-  bool position_within_bounds(Position pos) {
-    int n_rows = this->map.get_n_rows();
-    int n_cols = this->map.get_n_cols();
-
-    return (pos.pos_X >= 0 && pos.pos_X < n_cols) &&
-           (pos.pos_Y >= 0 && pos.pos_Y < n_rows);
-  }
-
-public:
-  void load_map() {
-    vector<vector<char>> map_chars = this->map.get_map();
-    int n_rows = this->map.get_n_rows();
-    int n_cols = this->map.get_n_cols();
-
-    for (int i = 0; i < n_rows; i++) {
-      for (int j = 0; j < n_cols; j++) {
-        addch(map_chars[i][j]);
-      }
-
-      addch('\n');
-    }
-  }
-
-  void update_map(char character, Position previous, Position current) {
-    // TODO: remove
-    // Position previous = pac.get_previous_position();
-    // Position current = pac.get_current_position();
-
-    // printw(to_string(previous.pos_X).c_str());
-    // printw(to_string(previous.pos_Y).c_str());
-    // addch('\n');
-
-    // printw(to_string(current.pos_X).c_str());
-    // printw(to_string(current.pos_Y).c_str());
-    // addch('\n');
-
-    this->map.update_map(previous.pos_X, previous.pos_Y, ' ');
-    this->map.update_map(current.pos_X, current.pos_Y, character);
-
-    erase();
-    refresh();
-    load_map();
-  }
-
-  bool is_position_valid(Position pos, bool is_pacman) {
-    vector<vector<char>> map_chars = this->map.get_map();
-    char c = map_chars[pos.pos_Y][pos.pos_X];
-
-    return (this->position_within_bounds(pos) &&
-            (c == 'o' || c == ' ' || (!is_pacman && (c == '@' || c == '%'))));
-  }
-};
 
 class Pacman {
   GameController *gc;
@@ -94,10 +14,10 @@ class Pacman {
   Position current_pos;
 
 public:
-  Pacman(GameController *game_ctrl, unsigned int pos_X, unsigned int pos_Y) {
+  Pacman(GameController *game_ctrl, unsigned int x, unsigned int y) {
     gc = game_ctrl;
-    current_pos.pos_X = pos_X;
-    current_pos.pos_Y = pos_Y;
+    current_pos.x = x;
+    current_pos.y = y;
     previous_pos = current_pos;
   }
 
@@ -109,32 +29,32 @@ public:
     Position new_pos = current_pos;
 
     if (direction == UP) {
-      new_pos.pos_Y--;
+      new_pos.y--;
 
       if (gc->is_position_valid(new_pos, true)) {
         previous_pos = current_pos;
-        current_pos.pos_Y--;
+        current_pos.y--;
       }
     } else if (direction == DOWN) {
-      new_pos.pos_Y++;
+      new_pos.y++;
 
       if (gc->is_position_valid(new_pos, true)) {
         previous_pos = current_pos;
-        current_pos.pos_Y++;
+        current_pos.y++;
       }
     } else if (direction == LEFT) {
-      new_pos.pos_X--;
+      new_pos.x--;
 
       if (gc->is_position_valid(new_pos, true)) {
         previous_pos = current_pos;
-        current_pos.pos_X--;
+        current_pos.x--;
       }
     } else if (direction == RIGHT) {
-      new_pos.pos_X++;
+      new_pos.x++;
 
       if (gc->is_position_valid(new_pos, true)) {
         previous_pos = current_pos;
-        current_pos.pos_X++;
+        current_pos.x++;
       }
     }
   }
@@ -146,10 +66,10 @@ class Ghost {
   Position current_pos;
 
 public:
-  Ghost(GameController *game_ctrl, unsigned int pos_X, unsigned int pos_Y) {
+  Ghost(GameController *game_ctrl, unsigned int x, unsigned int y) {
     gc = game_ctrl;
-    current_pos.pos_X = pos_X;
-    current_pos.pos_Y = pos_Y;
+    current_pos.x = x;
+    current_pos.y = y;
     previous_pos = current_pos;
   }
 
@@ -164,11 +84,11 @@ public:
     switch (direction) {
     // UP
     case 0: {
-      new_pos.pos_Y--;
+      new_pos.y--;
 
       if (gc->is_position_valid(new_pos, false)) {
         previous_pos = current_pos;
-        current_pos.pos_Y--;
+        current_pos.y--;
       }
 
       break;
@@ -176,11 +96,11 @@ public:
 
     // RIGHT
     case 1: {
-      new_pos.pos_X++;
+      new_pos.x++;
 
       if (gc->is_position_valid(new_pos, false)) {
         previous_pos = current_pos;
-        current_pos.pos_X++;
+        current_pos.x++;
       }
 
       break;
@@ -188,11 +108,11 @@ public:
 
     // DOWN
     case 2: {
-      new_pos.pos_Y++;
+      new_pos.y++;
 
       if (gc->is_position_valid(new_pos, false)) {
         previous_pos = current_pos;
-        current_pos.pos_Y++;
+        current_pos.y++;
       }
 
       break;
@@ -200,11 +120,11 @@ public:
 
     // LEFT
     case 3: {
-      new_pos.pos_X--;
+      new_pos.x--;
 
       if (gc->is_position_valid(new_pos, false)) {
         previous_pos = current_pos;
-        current_pos.pos_X--;
+        current_pos.x--;
       }
 
       break;
