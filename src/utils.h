@@ -21,4 +21,7 @@ public:
 
 enum Move { UP = 0, DOWN = 1, LEFT = 2, RIGHT = 3 };
 
+bool should_quit();
+void quit();
+
 #endif

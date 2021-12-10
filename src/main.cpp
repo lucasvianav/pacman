@@ -57,21 +57,36 @@ int main() {
 
       pac.move(static_cast<Move>(direction));
 
+      if (should_quit()) {
+        break;
+      }
+
       this_thread::sleep_for(chrono::nanoseconds(delay));
     }
   };
 
   auto game_controller = [&]() {
     while (true) {
-      this_thread::sleep_for(chrono::nanoseconds(MAP_REFRESH_DELAY));
       gc.refresh();
+
+      if (should_quit()) {
+        waddstr(gc.get_screen(), "GAME OVER!");
+        break;
+      }
+
+      this_thread::sleep_for(chrono::nanoseconds(MAP_REFRESH_DELAY));
     }
   };
 
   auto automove_ghosts = [&inky, &gc]() {
     while (true) {
-      this_thread::sleep_for(chrono::nanoseconds(GHOST_DELAY));
       inky.move();
+
+      if (should_quit()) {
+        break;
+      }
+
+      this_thread::sleep_for(chrono::nanoseconds(GHOST_DELAY));
     }
   };
 

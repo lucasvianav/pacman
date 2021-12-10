@@ -51,6 +51,9 @@ Position GameController::move(Position old_pos, Position new_pos,
 
     switch (new_pos_cur_char) {
     case PACMAN_ICON:
+      quit();
+      break;
+
     case '.':
       if (!is_pacman) {
         new_pos_new_char = '&';
