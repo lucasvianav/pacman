@@ -15,18 +15,26 @@ int main() {
   setlocale(LC_ALL, "");
 
   GameController gc;
-  Pacman pac{&gc, 14, 20};
+  Pacman pacman{&gc, 14, 20};
   Ghost inky{&gc, 12, 14};
   WINDOW *window = gc.get_window();
 
-  auto keypress = [&pac, &gc, &window]() {
+  auto user_input = [&pacman, &gc, &window]() {
     int delay = INPUT_DELAY;
+    Direction dir;
+    int pressed_key;
+
+    /* allowed key sets:
+     * w a s d
+     * k h j l (vim movement)
+     * ↑ ← ↓ →
+     */
 
     while (true) {
-      int c = wgetch(window);
-      Direction dir;
+      pressed_key = wgetch(window);
 
-      switch (c) {
+      // parse pressed key
+      switch (pressed_key) {
       case KEY_UP:
       case 'w':
       case 'k':
@@ -51,11 +59,13 @@ int main() {
         dir = LEFT;
         break;
 
+      // if it's not a valid
+      // key, just ignore it
       default:
         continue;
       }
 
-      pac.turn(dir);
+      pacman.turn(dir);
 
       if (should_quit() || gc.won()) {
         break;
@@ -65,9 +75,9 @@ int main() {
     }
   };
 
-  auto pacman = [&pac, &gc, &window]() {
+  auto pacman_movement = [&pacman, &gc, &window]() {
     while (true) {
-      pac.move();
+      pacman.move();
 
       if (should_quit() || gc.won()) {
         break;
@@ -77,7 +87,7 @@ int main() {
     }
   };
 
-  auto game_controller = [&]() {
+  auto map_refreshing = [&]() {
     while (true) {
       gc.refresh();
 
@@ -93,7 +103,7 @@ int main() {
     }
   };
 
-  auto automove_ghosts = [&inky, &gc]() {
+  auto inky_movement = [&inky, &gc]() {
     while (true) {
       inky.move();
 
@@ -105,15 +115,16 @@ int main() {
     }
   };
 
-  thread t_kp = thread(keypress);
-  thread t_pc = thread(pacman);
-  thread t_gc = thread(game_controller);
-  thread t_ag = thread(automove_ghosts);
+  thread threads[4] = {
+      thread(user_input),
+      thread(pacman_movement),
+      thread(map_refreshing),
+      thread(inky_movement),
+  };
 
-  t_kp.join();
-  t_pc.join();
-  t_gc.join();
-  t_ag.join();
+  for (int i = 0; i < 4; i++) {
+    threads[i].join();
+  }
 
   return 0;
 }
