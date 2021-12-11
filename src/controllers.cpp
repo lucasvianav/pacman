@@ -95,10 +95,17 @@ Position GameController::move(Position old_pos, Position new_pos) {
   return old_pos;
 }
 
-void GameController::refresh() {
+void GameController::redraw() {
   erase();
   wrefresh(this->window);
   this->draw_map();
+}
+
+void GameController::refresh() { wrefresh(this->window); }
+
+void GameController::reset() {
+  erase();
+  wrefresh(this->window);
 }
 
 WINDOW *GameController::get_window() { return this->window; }
@@ -138,6 +145,8 @@ void Character::move(Direction direction) {
     this->pos->y = new_pos.y;
   }
 }
+
+void Character::free() { std::free(this->pos); }
 
 /*
  * ____   _    ____ __  __    _    _   _

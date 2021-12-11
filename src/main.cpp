@@ -89,13 +89,9 @@ int main() {
 
   auto map_refreshing = [&]() {
     while (true) {
-      gc.refresh();
+      gc.redraw();
 
       if (should_quit() || gc.won()) {
-        char score[15];
-        sprintf(score, "GAME OVER! %d", gc.get_score());
-
-        waddstr(window, score);
         break;
       }
 
@@ -125,6 +121,13 @@ int main() {
   for (int i = 0; i < 4; i++) {
     threads[i].join();
   }
+
+  // free allocated memory
+  pacman.free();
+  inky.free();
+
+  printf("\033c");
+  printf("\nGAME OVER! \nScore: %d\n\n", gc.get_score());
 
   return 0;
 }

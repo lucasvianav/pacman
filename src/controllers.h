@@ -33,8 +33,14 @@ public:
    */
   Position move(Position old_pos, Position new_pos);
 
-  /* Refresh/redraw the game's map. */
+  /* Redraw the game's map. */
+  void redraw();
+
+  /* Refresh the screen. */
   void refresh();
+
+  /* Reset the screen. */
+  void reset();
 
   /* Getter for the game window. */
   WINDOW *get_window();
@@ -61,6 +67,7 @@ public:
 
   /* Move the charater one position in the given direction. */
   void move(Direction direction);
+  void free();
 };
 
 class Pacman : public Character {
