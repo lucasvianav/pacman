@@ -1,5 +1,6 @@
 #include "controllers.h"
 #include <curses.h>
+#include <iostream>
 #include <stdlib.h>
 
 using namespace std;
@@ -25,6 +26,11 @@ GameController::GameController() {
   this->draw_map();
   this->ghost_above_dot = false;
   this->score = 0;
+}
+
+GameController::~GameController() {
+  endwin();
+  cout << "\nGAME OVER! \nScore: " << this->score << "\n\n";
 }
 
 void GameController::draw_map() {
@@ -146,7 +152,7 @@ void Character::move(Direction direction) {
   }
 }
 
-void Character::free() { std::free(this->pos); }
+Character::~Character() { std::free(this->pos); }
 
 /*
  * ____   _    ____ __  __    _    _   _

@@ -28,6 +28,7 @@ private:
 
 public:
   GameController();
+  ~GameController();
 
   /* Move a charater from one position to another.
    * @param `old_pos` the target's original position.
@@ -67,10 +68,10 @@ protected:
 
 public:
   Character(GameController *gc, unsigned int x, unsigned int y);
+  ~Character();
 
   /* Move the charater one position in the given direction. */
   void move(Direction direction);
-  void free();
 };
 
 class Pacman : public Character {
