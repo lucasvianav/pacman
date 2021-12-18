@@ -1,13 +1,8 @@
 #include "controllers.h"
 #include "map.h"
 #include "utils.h"
-#include <chrono>
 #include <clocale>
-#include <cstdio>
-#include <ncurses.h>
-#include <string>
 #include <thread>
-#include <unistd.h>
 
 using namespace std;
 
@@ -121,13 +116,6 @@ int main() {
   for (int i = 0; i < 4; i++) {
     threads[i].join();
   }
-
-  // free allocated memory
-  pacman.free();
-  inky.free();
-
-  printf("\033c");
-  printf("\nGAME OVER! \nScore: %d\n\n", gc.get_score());
 
   return 0;
 }
