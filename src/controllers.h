@@ -4,6 +4,9 @@
 #include "map.h"
 #include "utils.h"
 #include <ncurses.h>
+#include <queue>
+#include <map>
+#include <iostream>
 
 class GameController {
 private:
@@ -87,6 +90,9 @@ public:
 class Ghost : public Character {
 public:
   Ghost(GameController *gc, unsigned int x, unsigned int y);
+
+  /* find next move based on bfs */
+  Position find_next_move(Position pacman_pos, Map maze);
 
   /* Move Ghost one position to a random direction. */
   void move();

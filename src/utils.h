@@ -29,6 +29,7 @@ public:
 
   bool operator==(const Position p);
   bool operator!=(const Position p);
+  bool operator<(const Position p) const;
   Position &operator=(const Position &p);
 };
 

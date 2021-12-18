@@ -43,6 +43,11 @@ public:
 
   /* Check if position is within the map's bounds. */
   bool position_valid(Position pos);
+
+  /* Check if given position is not '*' or '#' */
+  bool is_walkable_cell(Position pos);
+
+  vector<Position> get_adj_list(Position pos);
 };
 
 #endif

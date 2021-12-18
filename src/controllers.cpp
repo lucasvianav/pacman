@@ -185,3 +185,53 @@ void Ghost::move() {
   Direction direction = static_cast<Direction>(rand() % 4);
   Character::move(direction);
 }
+
+Position get_next_move(vector<Position>& path)
+{
+  return path[1];
+}
+ 
+// utility function to check if current
+// vertex is already present in path
+int isNotVisited(Position x, vector<Position>& path)
+{
+    int size = path.size();
+    for (int i = 0; i < size; i++)
+        if (path[i] == x)
+            return 0;
+    return 1;
+}
+ 
+// utility function for finding paths in graph
+// from source to destination
+Position Ghost::find_next_move(Position pacman_pos, Map maze)
+{
+  // create a queue which stores
+  // the paths
+  queue<vector<Position>> q;
+
+  // path vector to store the current path
+  vector<Position> path;
+  path.push_back(*(this->pos));
+  q.push(path);
+  while (!q.empty()) {
+      path = q.front();
+      q.pop();
+      Position last = path[path.size() - 1];
+
+      // if last vertex is the desired destination
+      // then print the path
+      if (last == pacman_pos)
+          return get_next_move(path);       
+
+      // traverse to all the nodes connected to
+      // current vertex and push new path to queue
+      for(Position p : maze.get_adj_list(last)) {
+        if(isNotVisited(p, path)) {
+          vector<Position> newpath(path);
+          newpath.push_back(p);
+          q.push(newpath);
+        }
+      }
+  }
+}

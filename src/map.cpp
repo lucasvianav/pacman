@@ -63,3 +63,46 @@ bool Map::position_valid(Position pos) {
   return (pos.x >= 0 && pos.x < this->n_cols) &&
          (pos.y >= 0 && pos.y < this->n_rows);
 }
+
+bool Map::is_walkable_cell(Position pos) {
+  return this->get_char(pos) != '*' && this->get_char(pos) != '#';
+}
+
+vector<Position> Map::get_adj_list(Position pos) {
+    Position neighborsPosition;
+    vector<Position> neighborsList;
+    // vizinho casa a esquerda
+    if(pos.x != 0) {
+        neighborsPosition.x = pos.x-1;
+        neighborsPosition.y = pos.y;
+        if(this->is_walkable_cell(neighborsPosition)) {
+            neighborsList.push_back(neighborsPosition);
+        }
+    }
+    // vizinho casa a direita
+    if(pos.x != this->get_n_cols() - 1) {
+        neighborsPosition.x = pos.x+1;
+        neighborsPosition.y = pos.y;
+        if(this->is_walkable_cell(neighborsPosition)) {
+            neighborsList.push_back(neighborsPosition);
+        }
+    }
+    //vizinho abaixo
+    if(pos.y != this->get_n_rows() - 1) {
+        neighborsPosition.x = pos.x;
+        neighborsPosition.y = pos.y+1;
+        if(this->is_walkable_cell(neighborsPosition)) {
+            neighborsList.push_back(neighborsPosition);
+        }
+    }
+
+    // vizinho acima
+    if(pos.y != 0) {
+        neighborsPosition.x = pos.x;
+        neighborsPosition.y = pos.y-1;
+        if(this->is_walkable_cell(neighborsPosition)) {
+            neighborsList.push_back(neighborsPosition);
+        }
+    }
+    return neighborsList;
+}

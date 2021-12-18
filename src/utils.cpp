@@ -14,6 +14,10 @@ Position &Position::operator=(const Position &p) {
   return *this;
 }
 
+bool Position::operator<(const Position p) const {
+  return (p.x - this->x) + (p.y - this->y) > 0;
+}
+
 Position Position::move(Direction dir) {
   switch (dir) {
   case UP:
