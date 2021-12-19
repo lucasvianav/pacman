@@ -30,10 +30,12 @@ GameController::GameController() {
     start_color();
 
     // ghosts' color
+    init_pair(0, COLOR_WHITE, COLOR_BLACK);
     init_pair(1, COLOR_RED, COLOR_WHITE);
+    init_pair(2, COLOR_YELLOW, COLOR_BLACK);
 
     // set BG color to black
-    wattron(this->window, COLOR_BLACK);
+    wbkgd(this->window, COLOR_PAIR(0));
   }
 
   this->map = Map();
@@ -58,14 +60,20 @@ void GameController::draw_map() {
 
   for (unsigned int i = 0; i < n_rows; i++) {
     for (unsigned int j = 0; j < n_cols; j++) {
-      if (map_chars[i][j] == GHOST_ICON) {
-        if (this->has_color) {
+      if (this->has_color) {
+        if (map_chars[i][j] == GHOST_ICON) {
           waddch(this->window, map_chars[i][j] | A_BOLD | A_STANDOUT | COLOR_PAIR(1));
+        } else if (map_chars[i][j] == PACMAN_ICON) {
+          waddch(this->window, map_chars[i][j] | A_BOLD | COLOR_PAIR(2));
         } else {
-          waddch(this->window, map_chars[i][j] | A_BOLD | A_STANDOUT);
+          waddch(this->window, map_chars[i][j] | COLOR_PAIR(0));
         }
       } else {
-        waddch(this->window, map_chars[i][j]);
+        if (map_chars[i][j] == GHOST_ICON) {
+          waddch(this->window, map_chars[i][j] | A_BOLD | A_STANDOUT);
+        } else {
+          waddch(this->window, map_chars[i][j]);
+        }
       }
     }
 
