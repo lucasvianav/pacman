@@ -17,10 +17,10 @@ int main() {
   WINDOW *window = gc.get_window();
 
   auto ghosts_positions = gc.get_ghosts_positions();
-  Ghost inky{&gc, BREADTH, ghosts_positions[0]};
-  Ghost blinky{&gc, DEPTH, ghosts_positions[1]};
-  Ghost clyde{&gc, RANDOM, ghosts_positions[2]};
-  Ghost pinky{&gc, BEST, ghosts_positions[3]};
+  Ghost inky{&gc, AI::BREADTH, ghosts_positions[0]};
+  Ghost blinky{&gc, AI::DEPTH, ghosts_positions[1]};
+  Ghost clyde{&gc, AI::RANDOM, ghosts_positions[2]};
+  Ghost pinky{&gc, AI::BEST, ghosts_positions[3]};
 
   auto user_input = [&pacman, &gc, &window]() {
     int delay = INPUT_DELAY;

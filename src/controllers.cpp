@@ -1,4 +1,5 @@
 #include "controllers.h"
+#include "utils.h"
 #include <algorithm>
 #include <curses.h>
 #include <ncurses.h>
@@ -30,12 +31,12 @@ GameController::GameController() {
     start_color();
 
     // ghosts' color
-    init_pair(0, COLOR_WHITE, COLOR_BLACK);
-    init_pair(1, COLOR_RED, COLOR_WHITE);
+    init_pair(0, COLOR_WHITE,  COLOR_BLACK);
+    init_pair(1, COLOR_RED,    COLOR_WHITE);
     init_pair(2, COLOR_YELLOW, COLOR_BLACK);
 
     // set BG color to black
-    wbkgd(this->window, COLOR_PAIR(0));
+    wbkgd(this->window, A_NORMAL | COLOR_PAIR(0));
   }
 
   this->map = Map();
@@ -66,13 +67,15 @@ void GameController::draw_map() {
         } else if (map_chars[i][j] == PACMAN_ICON) {
           waddch(this->window, map_chars[i][j] | A_BOLD | COLOR_PAIR(2));
         } else {
-          waddch(this->window, map_chars[i][j] | COLOR_PAIR(0));
+          waddch(this->window, map_chars[i][j] | A_NORMAL | COLOR_PAIR(0));
         }
       } else {
         if (map_chars[i][j] == GHOST_ICON) {
           waddch(this->window, map_chars[i][j] | A_BOLD | A_STANDOUT);
+        } else if (map_chars[i][j] == PACMAN_ICON) {
+          waddch(this->window, map_chars[i][j] | A_BOLD);
         } else {
-          waddch(this->window, map_chars[i][j]);
+          waddch(this->window, map_chars[i][j] | A_NORMAL);
         }
       }
     }
@@ -262,7 +265,7 @@ void Ghost::move(Position target) {
 }
 
 Position Ghost::find_next_move(Position target) {
-  if (type != RANDOM) {
+  if (type != AI::RANDOM) {
     // list of all paths to be analyzed (the next node to
     // be visited is the last one on each path)
     vector<vector<Position>> backlog;
@@ -277,14 +280,14 @@ Position Ghost::find_next_move(Position target) {
     // list of the euclidian distances between all nodes in the
     // backlog and the target (only used for Best First Searches)
     vector<double> distances;
-    if (this->type == BEST) {
+    if (this->type == AI::BEST) {
       distances.push_back(target - *this->pos);
     }
 
     while (!backlog.empty()) {
       // if it's performing a Best First Search, select the node that's closest to the
       // target (aka the node at the same index as the lowest value in distances)
-      if (this->type == BEST) {
+      if (this->type == AI::BEST) {
         auto lowest_distance = min_element(distances.begin(), distances.end());
         int selected_index = distance(distances.begin(), lowest_distance);
 
@@ -292,7 +295,7 @@ Position Ghost::find_next_move(Position target) {
 
         backlog.erase(backlog.begin() + selected_index);
         distances.erase(distances.begin() + selected_index);
-      } else if (this->type == DEPTH) { // DFS: LIFO
+      } else if (this->type == AI::DEPTH) { // DFS: LIFO
         path = backlog.back();
         backlog.pop_back();
       } else { // BFS: FIFO
