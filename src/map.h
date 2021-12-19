@@ -20,6 +20,9 @@ private:
   /* Number of points in the map. */
   unsigned int n_dots;
 
+  /* Check if given position can be "walked" by a character. */
+  bool is_walkable(Position pos);
+
 public:
   Map();
 
@@ -44,10 +47,8 @@ public:
   /* Check if position is within the map's bounds. */
   bool position_valid(Position pos);
 
-  /* Check if given position is not '*' or '#' */
-  bool is_walkable_cell(Position pos);
-
-  vector<Position> get_adj_list(Position pos);
+  /* Getter for the adjacency list of a given position. */
+  vector<Position> get_adjacency_list(Position pos);
 };
 
 #endif

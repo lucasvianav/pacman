@@ -1,10 +1,13 @@
 #include "controllers.h"
 #include "map.h"
 #include "utils.h"
+#include <chrono>
 #include <clocale>
 #include <thread>
 
 using namespace std;
+
+#define N_THREADS 4
 
 int main() {
   setlocale(LC_ALL, "");
@@ -66,7 +69,7 @@ int main() {
         break;
       }
 
-      this_thread::sleep_for(chrono::nanoseconds(delay));
+      this_thread::sleep_for(chrono::microseconds(delay));
     }
   };
 
@@ -78,11 +81,13 @@ int main() {
         break;
       }
 
-      this_thread::sleep_for(chrono::nanoseconds(PACMAN_DELAY));
+      this_thread::sleep_for(chrono::microseconds(PACMAN_DELAY));
     }
   };
 
   auto map_refreshing = [&]() {
+    auto delay = min(GHOST_DELAY, PACMAN_DELAY);
+
     while (true) {
       gc.redraw();
 
@@ -90,30 +95,32 @@ int main() {
         break;
       }
 
-      this_thread::sleep_for(chrono::nanoseconds(MAP_REFRESH_DELAY));
+      this_thread::sleep_for(chrono::microseconds(delay));
     }
   };
 
-  auto inky_movement = [&inky, &gc]() {
+  auto inky_movement = [&inky, &gc, &pacman]() {
+    this_thread::sleep_for(chrono::seconds(1));
+
     while (true) {
-      inky.move();
+      inky.move(pacman.get_positon());
 
       if (should_quit() || gc.won()) {
         break;
       }
 
-      this_thread::sleep_for(chrono::nanoseconds(GHOST_DELAY));
+      this_thread::sleep_for(chrono::microseconds(GHOST_DELAY));
     }
   };
 
-  thread threads[4] = {
+  thread threads[N_THREADS] = {
       thread(user_input),
       thread(pacman_movement),
       thread(map_refreshing),
       thread(inky_movement),
   };
 
-  for (int i = 0; i < 4; i++) {
+  for (int i = 0; i < N_THREADS; i++) {
     threads[i].join();
   }
 

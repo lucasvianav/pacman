@@ -8,10 +8,9 @@
 #define PACMAN_ICON '@'
 #define SPACE ' '
 
-#define GHOST_DELAY 90000000
-#define INPUT_DELAY 10000
-#define PACMAN_DELAY 90000000
-#define MAP_REFRESH_DELAY 90000000
+#define GHOST_DELAY 200000
+#define INPUT_DELAY 10
+#define PACMAN_DELAY 70000
 
 /* UP = 0, DOWN = 1, LEFT = 2, RIGHT = 3 */
 enum Direction { UP = 0, DOWN = 1, LEFT = 2, RIGHT = 3 };

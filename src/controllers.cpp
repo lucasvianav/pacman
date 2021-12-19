@@ -1,7 +1,9 @@
 #include "controllers.h"
+#include <algorithm>
 #include <curses.h>
 #include <iostream>
 #include <stdlib.h>
+#include <vector>
 
 using namespace std;
 
@@ -125,6 +127,10 @@ bool GameController::direction_blocked(Position pos, Direction dir) {
   return character != DOT && character != SPACE;
 }
 
+vector<Position> GameController::get_adjacency_list(Position pos) {
+  return this->map.get_adjacency_list(pos);
+}
+
 /*
  *  ____ _   _    _    ____      _    ____ _____ _____ ____
  * / ___| | | |  / \  |  _ \    / \  / ___|_   _| ____|  _ \
@@ -152,6 +158,16 @@ void Character::move(Direction direction) {
   }
 }
 
+void Character::move(Position intended_pos) {
+  Position new_pos = gc->move(*this->pos, intended_pos);
+  printf("%d %d\n", new_pos.x, new_pos.y);
+
+  if (new_pos != *this->pos) {
+    this->pos->x = new_pos.x;
+    this->pos->y = new_pos.y;
+  }
+}
+
 Character::~Character() { std::free(this->pos); }
 
 /*
@@ -167,13 +183,25 @@ Pacman::Pacman(GameController *gc, unsigned int x, unsigned int y)
   this->direction = RIGHT;
 }
 
-void Pacman::move() { Character::move(this->direction); }
+void Pacman::move() {
+  this->m.lock();
+  Character::move(this->direction);
+  this->m.unlock();
+}
 
 void Pacman::turn(Direction dir) {
   bool is_blocked = this->gc->direction_blocked(*this->pos, dir);
   if (!is_blocked) {
     this->direction = dir;
   }
+}
+
+Position Pacman::get_positon() {
+  this->m.lock();
+  Position pos = *this->pos;
+  this->m.unlock();
+
+  return pos;
 }
 
 /*
@@ -187,57 +215,62 @@ void Pacman::turn(Direction dir) {
 Ghost::Ghost(GameController *gc, unsigned int x, unsigned int y)
     : Character(gc, x, y) {}
 
-void Ghost::move() {
-  Direction direction = static_cast<Direction>(rand() % 4);
-  Character::move(direction);
+void Ghost::move(Position target) {
+  Position pos = this->find_next_move(target);
+
+  if (pos != *this->pos) {
+    printf("%d %d\n", pos.x, pos.y);
+    Character::move(pos);
+  } else { // if no move was found, just move randomly
+    Direction direction = static_cast<Direction>(rand() % 4);
+    Character::move(direction);
+  }
 }
 
-Position get_next_move(vector<Position>& path)
-{
-  return path[1];
-}
- 
-// utility function to check if current
-// vertex is already present in path
-int isNotVisited(Position x, vector<Position>& path)
-{
-    int size = path.size();
-    for (int i = 0; i < size; i++)
-        if (path[i] == x)
-            return 0;
-    return 1;
-}
- 
-// utility function for finding paths in graph
-// from source to destination
-Position Ghost::find_next_move(Position pacman_pos, Map maze)
-{
-  // create a queue which stores
-  // the paths
-  queue<vector<Position>> q;
+Position Ghost::find_next_move(Position target) {
+  // list of all paths to be analyzed (the next node to
+  // be visited is the last one on each path)
+  queue<vector<Position>> backlog;
 
-  // path vector to store the current path
+  // all analyzed nodes
+  vector<Position> history;
+
   vector<Position> path;
   path.push_back(*(this->pos));
-  q.push(path);
-  while (!q.empty()) {
-      path = q.front();
-      q.pop();
-      Position last = path[path.size() - 1];
+  backlog.push(path);
 
-      // if last vertex is the desired destination
-      // then print the path
-      if (last == pacman_pos)
-          return get_next_move(path);       
+  while (!backlog.empty()) {
+    // current path
+    path = backlog.front();
+    backlog.pop();
 
-      // traverse to all the nodes connected to
-      // current vertex and push new path to queue
-      for(Position p : maze.get_adj_list(last)) {
-        if(isNotVisited(p, path)) {
-          vector<Position> newpath(path);
-          newpath.push_back(p);
-          q.push(newpath);
-        }
-      }
+    // currently being analyzed node
+    Position current = path[path.size() - 1];
+
+    // if the current node was already analyzed, skip it
+    if (count(history.begin(), history.end(), current)) {
+      continue;
+    }
+
+    // if the target is found, returns the next position in path
+    // (path[0] is the ghost's current posision)
+    if (current == target) {
+      return path[1];
+    }
+
+    auto adjacencies = this->gc->get_adjacency_list(current);
+
+    history.push_back(current);
+
+    // loops through each adjacent node, marking
+    // a new path that ends in it to be analyzed
+    for (Position node : adjacencies) {
+      vector<Position> newpath(path);
+      newpath.push_back(node);
+      backlog.push(newpath);
+    }
   }
+
+  // if no path was found, don't move
+  return *this->pos;
 }

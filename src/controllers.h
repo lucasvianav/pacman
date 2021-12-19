@@ -3,10 +3,11 @@
 
 #include "map.h"
 #include "utils.h"
+#include <iostream>
+#include <map>
+#include <mutex>
 #include <ncurses.h>
 #include <queue>
-#include <map>
-#include <iostream>
 
 class GameController {
 private:
@@ -57,6 +58,9 @@ public:
 
   /* Check if a position is blocked from a certain direction. */
   bool direction_blocked(Position pos, Direction dir);
+
+  /* Getter for the adjacency list of a given position. */
+  vector<Position> get_adjacency_list(Position pos);
 };
 
 class Character {
@@ -72,11 +76,15 @@ public:
 
   /* Move the charater one position in the given direction. */
   void move(Direction direction);
+
+  /* Move the charater to the given position. */
+  void move(Position intended_pos);
 };
 
 class Pacman : public Character {
 private:
   Direction direction;
+  mutex m;
 
 public:
   Pacman(GameController *gc, unsigned int x, unsigned int y);
@@ -86,17 +94,21 @@ public:
 
   /* Move Pacman one position to the direction it is heading. */
   void move();
+
+  /* Getter for Pacman's position. */
+  Position get_positon();
 };
 
 class Ghost : public Character {
+private:
+  /* Find out where the ghost should go next. */
+  Position find_next_move(Position pacman_pos);
+
 public:
   Ghost(GameController *gc, unsigned int x, unsigned int y);
 
-  /* find next move based on bfs */
-  Position find_next_move(Position pacman_pos, Map maze);
-
   /* Move Ghost one position to a random direction. */
-  void move();
+  void move(Position target);
 };
 
 #endif

@@ -64,45 +64,53 @@ bool Map::position_valid(Position pos) {
          (pos.y >= 0 && pos.y < this->n_rows);
 }
 
-bool Map::is_walkable_cell(Position pos) {
-  return this->get_char(pos) != '*' && this->get_char(pos) != '#';
+bool Map::is_walkable(Position pos) {
+  auto c = this->get_char(pos);
+  return c == DOT || c == SPACE || c == PACMAN_ICON;
 }
 
-vector<Position> Map::get_adj_list(Position pos) {
-    Position neighborsPosition;
-    vector<Position> neighborsList;
-    // vizinho casa a esquerda
-    if(pos.x != 0) {
-        neighborsPosition.x = pos.x-1;
-        neighborsPosition.y = pos.y;
-        if(this->is_walkable_cell(neighborsPosition)) {
-            neighborsList.push_back(neighborsPosition);
-        }
-    }
-    // vizinho casa a direita
-    if(pos.x != this->get_n_cols() - 1) {
-        neighborsPosition.x = pos.x+1;
-        neighborsPosition.y = pos.y;
-        if(this->is_walkable_cell(neighborsPosition)) {
-            neighborsList.push_back(neighborsPosition);
-        }
-    }
-    //vizinho abaixo
-    if(pos.y != this->get_n_rows() - 1) {
-        neighborsPosition.x = pos.x;
-        neighborsPosition.y = pos.y+1;
-        if(this->is_walkable_cell(neighborsPosition)) {
-            neighborsList.push_back(neighborsPosition);
-        }
-    }
+vector<Position> Map::get_adjacency_list(Position pos) {
+  vector<Position> adjacencies;
+  Position neighbor;
 
-    // vizinho acima
-    if(pos.y != 0) {
-        neighborsPosition.x = pos.x;
-        neighborsPosition.y = pos.y-1;
-        if(this->is_walkable_cell(neighborsPosition)) {
-            neighborsList.push_back(neighborsPosition);
-        }
+  // to the left
+  if(pos.x != 0) {
+    neighbor.x = pos.x-1;
+    neighbor.y = pos.y;
+
+    if(this->is_walkable(neighbor)) {
+      adjacencies.push_back(neighbor);
     }
-    return neighborsList;
+  }
+
+  // to the right
+  if(pos.x != this->get_n_cols() - 1) {
+    neighbor.x = pos.x+1;
+    neighbor.y = pos.y;
+
+    if(this->is_walkable(neighbor)) {
+      adjacencies.push_back(neighbor);
+    }
+  }
+
+  // to the bottom
+  if(pos.y != this->get_n_rows() - 1) {
+    neighbor.x = pos.x;
+    neighbor.y = pos.y+1;
+
+    if(this->is_walkable(neighbor)) {
+      adjacencies.push_back(neighbor);
+    }
+  }
+
+  // to the top
+  if(pos.y != 0) {
+    neighbor.x = pos.x;
+    neighbor.y = pos.y-1;
+
+    if(this->is_walkable(neighbor)) {
+      adjacencies.push_back(neighbor);
+    }
+  }
+  return adjacencies;
 }

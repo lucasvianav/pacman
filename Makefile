@@ -4,5 +4,3 @@ mem:
 	g++ -g3 -fsanitize=address -fsanitize=undefined -fno-omit-frame-pointer -Werror -Wall -Werror -pthread -o main src/main.cpp src/map.cpp src/utils.cpp src/controllers.cpp -lncursesw
 run:
 	./main
-test:
-	g++ -g -Wall -o test src/testMain.cpp src/controllers.cpp src/utils.cpp src/map.cpp -lncursesw
