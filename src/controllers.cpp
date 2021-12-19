@@ -234,12 +234,28 @@ Position Ghost::find_next_move(Position target) {
     path.push_back(*(this->pos));
     backlog.push_back(path);
 
+    // list of the euclidian distances between all nodes in the
+    // backlog and the target (only used for Best First Searches)
+    vector<double> distances;
+    if (this->type == BEST) {
+      distances.push_back(target - *this->pos);
+    }
+
     while (!backlog.empty()) {
-      // DFS: LIFO, BFS: FIFO
-      if (this->type == DEPTH) {
+      // if it's performing a Best First Search, select the node that's closest to the
+      // target (aka the node at the same index as the lowest value in distances)
+      if (this->type == BEST) {
+        auto lowest_distance = min_element(distances.begin(), distances.end());
+        int selected_index = distance(distances.begin(), lowest_distance);
+
+        path = backlog.at(selected_index);
+
+        backlog.erase(backlog.begin() + selected_index);
+        distances.erase(distances.begin() + selected_index);
+      } else if (this->type == DEPTH) { // DFS: LIFO
         path = backlog.back();
         backlog.pop_back();
-      } else {
+      } else { // BFS: FIFO
         path = backlog.front();
         backlog.erase(backlog.begin());
       }
@@ -270,7 +286,10 @@ Position Ghost::find_next_move(Position target) {
       for (Position node : adjacencies) {
         vector<Position> new_path(path);
         new_path.push_back(node);
+        double distance = target - node;
+
         backlog.push_back(new_path);
+        distances.push_back(distance);
       }
     }
   }

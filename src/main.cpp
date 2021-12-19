@@ -17,6 +17,7 @@ int main() {
   Ghost inky{&gc, 12, 14, BREADTH};
   Ghost blinky{&gc, 13, 14, DEPTH};
   Ghost clyde{&gc, 14, 14, RANDOM};
+  Ghost pinky{&gc, 15, 14, BEST};
   WINDOW *window = gc.get_window();
 
   auto user_input = [&pacman, &gc, &window]() {
@@ -101,13 +102,14 @@ int main() {
     }
   };
 
-  auto ghosts_movement = [&inky, &blinky, &clyde, &gc, &pacman]() {
+  auto ghosts_movement = [&inky, &blinky, &clyde, &pinky, &gc, &pacman]() {
     this_thread::sleep_for(chrono::seconds(1));
 
     while (true) {
       inky.move(pacman.get_positon());
       blinky.move(pacman.get_positon());
       clyde.move(pacman.get_positon());
+      pinky.move(pacman.get_positon());
 
       if (should_quit() || gc.won()) {
         break;
