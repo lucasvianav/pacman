@@ -8,7 +8,7 @@
 #define PACMAN_ICON '@'
 #define SPACE ' '
 
-#define GHOST_DELAY 200000
+#define GHOST_DELAY 300000
 #define INPUT_DELAY 10
 #define PACMAN_DELAY 70000
 
