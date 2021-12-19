@@ -3,11 +3,18 @@
 
 #include <vector>
 
+// icons
 #define DOT '.'
 #define GHOST_ICON '%'
 #define PACMAN_ICON '@'
 #define SPACE ' '
 
+// color profiles
+#define STANDARD_COLORS 0
+#define PACMAN_COLORS 1
+#define GHOST_COLORS 2
+
+// delays
 #define GHOST_DELAY 300000
 #define INPUT_DELAY 10
 #define PACMAN_DELAY 70000

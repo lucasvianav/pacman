@@ -30,10 +30,10 @@ GameController::GameController() {
   if (this->has_color) {
     start_color();
 
-    // ghosts' color
-    init_pair(0, COLOR_WHITE,  COLOR_BLACK);
-    init_pair(1, COLOR_RED,    COLOR_WHITE);
-    init_pair(2, COLOR_YELLOW, COLOR_BLACK);
+    // color profiles
+    init_pair(STANDARD_COLORS, COLOR_WHITE,  COLOR_BLACK);
+    init_pair(GHOST_COLORS,    COLOR_RED,    COLOR_WHITE);
+    init_pair(PACMAN_COLORS,   COLOR_YELLOW, COLOR_BLACK);
 
     // set BG color to black
     wbkgd(this->window, A_NORMAL | COLOR_PAIR(0));
@@ -63,11 +63,11 @@ void GameController::draw_map() {
     for (unsigned int j = 0; j < n_cols; j++) {
       if (this->has_color) {
         if (map_chars[i][j] == GHOST_ICON) {
-          waddch(this->window, map_chars[i][j] | A_BOLD | A_STANDOUT | COLOR_PAIR(1));
+          waddch(this->window, map_chars[i][j] | A_BOLD | A_STANDOUT | COLOR_PAIR(GHOST_COLORS));
         } else if (map_chars[i][j] == PACMAN_ICON) {
-          waddch(this->window, map_chars[i][j] | A_BOLD | COLOR_PAIR(2));
+          waddch(this->window, map_chars[i][j] | A_BOLD | COLOR_PAIR(PACMAN_COLORS));
         } else {
-          waddch(this->window, map_chars[i][j] | A_NORMAL | COLOR_PAIR(0));
+          waddch(this->window, map_chars[i][j] | A_NORMAL | COLOR_PAIR(STANDARD_COLORS));
         }
       } else {
         if (map_chars[i][j] == GHOST_ICON) {
