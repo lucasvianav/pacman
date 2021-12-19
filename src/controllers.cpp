@@ -32,7 +32,10 @@ GameController::GameController() {
 
 GameController::~GameController() {
   endwin();
-  cout << "\nGAME OVER! \nScore: " << this->score << "\n\n";
+  cout
+    << "\n"
+    << (this->score == this->map.get_n_dots() ? "YOU WIN!" : "GAME OVER!")
+    << " \nScore: " << this->score << "\n\n";
 }
 
 void GameController::draw_map() {
