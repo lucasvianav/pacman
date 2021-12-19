@@ -14,7 +14,9 @@ int main() {
 
   GameController gc;
   Pacman pacman{&gc, 14, 20};
-  Ghost inky{&gc, 12, 14};
+  Ghost inky{&gc, 12, 14, BREADTH};
+  Ghost blinky{&gc, 13, 14, DEPTH};
+  Ghost clyde{&gc, 14, 14, RANDOM};
   WINDOW *window = gc.get_window();
 
   auto user_input = [&pacman, &gc, &window]() {
@@ -99,11 +101,13 @@ int main() {
     }
   };
 
-  auto inky_movement = [&inky, &gc, &pacman]() {
+  auto ghosts_movement = [&inky, &blinky, &clyde, &gc, &pacman]() {
     this_thread::sleep_for(chrono::seconds(1));
 
     while (true) {
       inky.move(pacman.get_positon());
+      blinky.move(pacman.get_positon());
+      clyde.move(pacman.get_positon());
 
       if (should_quit() || gc.won()) {
         break;
@@ -117,7 +121,7 @@ int main() {
       thread(user_input),
       thread(pacman_movement),
       thread(map_refreshing),
-      thread(inky_movement),
+      thread(ghosts_movement),
   };
 
   for (int i = 0; i < N_THREADS; i++) {

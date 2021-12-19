@@ -101,11 +101,17 @@ public:
 
 class Ghost : public Character {
 private:
+  /* The position the ghost was last in. */
+  Position last_position;
+
   /* Find out where the ghost should go next. */
   Position find_next_move(Position pacman_pos);
 
+  /* Type of artificial intelligence. */
+  AI type;
+
 public:
-  Ghost(GameController *gc, unsigned int x, unsigned int y);
+  Ghost(GameController *gc, unsigned int x, unsigned int y, AI type);
 
   /* Move Ghost one position to a random direction. */
   void move(Position target);

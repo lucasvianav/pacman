@@ -15,6 +15,9 @@
 /* UP = 0, DOWN = 1, LEFT = 2, RIGHT = 3 */
 enum Direction { UP = 0, DOWN = 1, LEFT = 2, RIGHT = 3 };
 
+/* Artificial Intelligence type for a ghost.j */
+enum AI { DEPTH, BREADTH, BEST, RANDOM };
+
 struct Position {
 public:
   /* Position in the x-axis. */

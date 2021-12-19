@@ -160,7 +160,6 @@ void Character::move(Direction direction) {
 
 void Character::move(Position intended_pos) {
   Position new_pos = gc->move(*this->pos, intended_pos);
-  printf("%d %d\n", new_pos.x, new_pos.y);
 
   if (new_pos != *this->pos) {
     this->pos->x = new_pos.x;
@@ -212,65 +211,80 @@ Position Pacman::get_positon() {
  * \____|_| |_|\___/|____/ |_|
  */
 
-Ghost::Ghost(GameController *gc, unsigned int x, unsigned int y)
-    : Character(gc, x, y) {}
+Ghost::Ghost(GameController *gc, unsigned int x, unsigned int y, AI type)
+    : Character(gc, x, y) {
+  this->last_position.x = x;
+  this->last_position.y = y;
+  this->type = type;
+}
 
 void Ghost::move(Position target) {
   Position pos = this->find_next_move(target);
-
-  if (pos != *this->pos) {
-    printf("%d %d\n", pos.x, pos.y);
-    Character::move(pos);
-  } else { // if no move was found, just move randomly
-    Direction direction = static_cast<Direction>(rand() % 4);
-    Character::move(direction);
-  }
+  this->last_position = *this->pos;
+  Character::move(pos);
 }
 
 Position Ghost::find_next_move(Position target) {
-  // list of all paths to be analyzed (the next node to
-  // be visited is the last one on each path)
-  queue<vector<Position>> backlog;
+  if (type != RANDOM) {
+    // list of all paths to be analyzed (the next node to
+    // be visited is the last one on each path)
+    vector<vector<Position>> backlog;
 
-  // all analyzed nodes
-  vector<Position> history;
+    // all analyzed nodes
+    vector<Position> history;
 
-  vector<Position> path;
-  path.push_back(*(this->pos));
-  backlog.push(path);
+    vector<Position> path;
+    path.push_back(*(this->pos));
+    backlog.push_back(path);
 
-  while (!backlog.empty()) {
-    // current path
-    path = backlog.front();
-    backlog.pop();
+    while (!backlog.empty()) {
+      // DFS: LIFO, BFS: FIFO
+      if (this->type == DEPTH) {
+        path = backlog.back();
+        backlog.pop_back();
+      } else {
+        path = backlog.front();
+        backlog.erase(backlog.begin());
+      }
 
-    // currently being analyzed node
-    Position current = path[path.size() - 1];
+      // currently being analyzed node
+      Position current = path[path.size() - 1];
 
-    // if the current node was already analyzed, skip it
-    if (count(history.begin(), history.end(), current)) {
-      continue;
-    }
+      // if either the current node was already analyzed
+      // or the current path goes back to the position the
+      // ghost just left, then skip to the next one
+      int was_analyzed = count(history.begin(), history.end(), current);
+      if (was_analyzed || path[1] == this->last_position) {
+        continue;
+      }
 
-    // if the target is found, returns the next position in path
-    // (path[0] is the ghost's current posision)
-    if (current == target) {
-      return path[1];
-    }
+      // if the target is found, returns the next position in path
+      // (path[0] is the ghost's current posision)
+      if (current == target) {
+        return path[1];
+      }
 
-    auto adjacencies = this->gc->get_adjacency_list(current);
+      auto adjacencies = this->gc->get_adjacency_list(current);
 
-    history.push_back(current);
+      history.push_back(current);
 
-    // loops through each adjacent node, marking
-    // a new path that ends in it to be analyzed
-    for (Position node : adjacencies) {
-      vector<Position> newpath(path);
-      newpath.push_back(node);
-      backlog.push(newpath);
+      // loops through each adjacent node, marking
+      // a new path that ends in it to be analyzed
+      for (Position node : adjacencies) {
+        vector<Position> new_path(path);
+        new_path.push_back(node);
+        backlog.push_back(new_path);
+      }
     }
   }
 
-  // if no path was found, don't move
-  return *this->pos;
+  Position random;
+  do {
+    random = *this->pos;
+    Direction direction = static_cast<Direction>(rand() % 4);
+    random.move(direction);
+  } while (random == this->last_position);
+
+  return random;
 }
+
