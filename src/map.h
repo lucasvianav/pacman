@@ -49,6 +49,12 @@ public:
 
   /* Getter for the adjacency list of a given position. */
   vector<Position> get_adjacency_list(Position pos);
+
+  /* The positions of all ghosts in the map. */
+  vector<Position> ghosts_positions;
+
+  /* The positions of Pacman in the map. */
+  Position pacman_posision;
 };
 
 #endif

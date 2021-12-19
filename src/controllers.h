@@ -34,6 +34,9 @@ public:
   /* Move a charater from one position to another.
    * @param `old_pos` the target's original position.
    * @param `new_pos` the target's intended position.
+   * @param `overwrtten_char` pointer to a variable containing the character
+   * that was previously in `old_pos`. It will be updated to the character in
+   * `new_pos`.
    * @return the target's current position (after the move).
    */
   Position move(Position old_pos, Position new_pos, wchar_t *overwritten_char);
@@ -61,6 +64,12 @@ public:
 
   /* Getter for the adjacency list of a given position. */
   vector<Position> get_adjacency_list(Position pos);
+
+  /* Getter for the ghosts' initial positions. */
+  vector<Position> get_ghosts_positions();
+
+  /* Getter for Pacman's initial position. */
+  Position get_pacman_position();
 };
 
 class Character {
@@ -71,7 +80,7 @@ protected:
   Position *pos;
 
 public:
-  Character(GameController *gc, unsigned int x, unsigned int y);
+  Character(GameController *gc, Position pos);
   ~Character();
 
   /* Move the charater one position in the given direction. */
@@ -87,7 +96,7 @@ private:
   mutex m;
 
 public:
-  Pacman(GameController *gc, unsigned int x, unsigned int y);
+  Pacman(GameController *gc);
 
   /* Alter the direction Pacman is heading to a new one. */
   void turn(Direction direction);
@@ -113,7 +122,7 @@ private:
   AI type;
 
 public:
-  Ghost(GameController *gc, unsigned int x, unsigned int y, AI type);
+  Ghost(GameController *gc, AI type, Position pos);
 
   /* Move Ghost one position to a random direction. */
   void move(Position target);

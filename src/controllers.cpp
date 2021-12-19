@@ -126,6 +126,14 @@ vector<Position> GameController::get_adjacency_list(Position pos) {
   return this->map.get_adjacency_list(pos);
 }
 
+vector<Position> GameController::get_ghosts_positions() {
+  return this->map.ghosts_positions;
+}
+
+Position GameController::get_pacman_position() {
+  return this->map.pacman_posision;
+}
+
 /*
  *  ____ _   _    _    ____      _    ____ _____ _____ ____
  * / ___| | | |  / \  |  _ \    / \  / ___|_   _| ____|  _ \
@@ -134,11 +142,11 @@ vector<Position> GameController::get_adjacency_list(Position pos) {
  * \____|_| |_/_/   \_\_| \_\/_/   \_\____| |_| |_____|_| \_\
  */
 
-Character::Character(GameController *gc, unsigned int x, unsigned int y) {
+Character::Character(GameController *gc, Position pos) {
   this->gc = gc;
   this->pos = (Position *)malloc(sizeof(Position));
-  this->pos->x = x;
-  this->pos->y = y;
+  this->pos->x = pos.x;
+  this->pos->y = pos.y;
 }
 
 void Character::move(Direction direction, wchar_t *overwritten_char) {
@@ -172,8 +180,8 @@ Character::~Character() { std::free(this->pos); }
  *|_| /_/   \_\____|_|  |_/_/   \_\_| \_|
  */
 
-Pacman::Pacman(GameController *gc, unsigned int x, unsigned int y)
-    : Character(gc, x, y) {
+Pacman::Pacman(GameController *gc)
+    : Character(gc, gc->get_pacman_position()) {
   this->direction = RIGHT;
 }
 
@@ -207,10 +215,10 @@ Position Pacman::get_positon() {
  * \____|_| |_|\___/|____/ |_|
  */
 
-Ghost::Ghost(GameController *gc, unsigned int x, unsigned int y, AI type)
-    : Character(gc, x, y) {
-  this->last_position.x = x;
-  this->last_position.y = y;
+Ghost::Ghost(GameController *gc, AI type, Position pos)
+    : Character(gc, pos) {
+  this->last_position.x = pos.x;
+  this->last_position.y = pos.y;
   this->type = type;
   this->overwritten_char = ' ';
 }

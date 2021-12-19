@@ -43,6 +43,13 @@ Map::Map() {
   this->n_rows = 31;
   this->n_cols = 28;
   this->n_dots = 329;
+  this->ghosts_positions = {
+    { 12, 14 },
+    { 13, 14 },
+    { 14, 14 },
+    { 15, 14 },
+  };
+  this->pacman_posision = { 14, 20 };
 }
 
 vector<vector<wchar_t>> Map::get_map() { return this->map; };

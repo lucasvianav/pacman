@@ -13,12 +13,14 @@ int main() {
   setlocale(LC_ALL, "");
 
   GameController gc;
-  Pacman pacman{&gc, 14, 20};
-  Ghost inky{&gc, 12, 14, BREADTH};
-  Ghost blinky{&gc, 13, 14, DEPTH};
-  Ghost clyde{&gc, 14, 14, RANDOM};
-  Ghost pinky{&gc, 15, 14, BEST};
+  Pacman pacman{&gc};
   WINDOW *window = gc.get_window();
+
+  auto ghosts_positions = gc.get_ghosts_positions();
+  Ghost inky{&gc, BREADTH, ghosts_positions[0]};
+  Ghost blinky{&gc, DEPTH, ghosts_positions[1]};
+  Ghost clyde{&gc, RANDOM, ghosts_positions[2]};
+  Ghost pinky{&gc, BEST, ghosts_positions[3]};
 
   auto user_input = [&pacman, &gc, &window]() {
     int delay = INPUT_DELAY;
