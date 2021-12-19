@@ -45,7 +45,7 @@ void GameController::draw_map() {
 
   for (unsigned int i = 0; i < n_rows; i++) {
     for (unsigned int j = 0; j < n_cols; j++) {
-      waddch(this->window, map_chars[i][j]);
+      waddch(this->window, map_chars[i][j] | A_STANDOUT);
     }
 
     if (i == 0) {
