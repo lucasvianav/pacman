@@ -17,7 +17,7 @@ using namespace std;
  * \____|\__,_|_| |_| |_|\___|\____\___/|_| |_|\__|_|  \___/|_|_|\___|_|
  */
 
-GameController::GameController() {
+GameController::GameController() : map("01") {
   // initializes ncurses
   this->window = initscr();
   this->has_color = has_colors();
@@ -39,7 +39,6 @@ GameController::GameController() {
     wbkgd(this->window, A_NORMAL | COLOR_PAIR(0));
   }
 
-  this->map = Map();
   this->draw_map();
   this->ghost_above_dot = false;
   this->score = 0;
