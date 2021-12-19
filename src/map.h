@@ -2,6 +2,7 @@
 #define MAP_H
 
 #include "utils.h"
+#include <string>
 #include <vector>
 
 using namespace std;
@@ -24,7 +25,7 @@ private:
   bool is_walkable(Position pos);
 
 public:
-  Map();
+  Map(string name);
 
   /* Returns the map's matrix. */
   vector<vector<wchar_t>> get_map();

@@ -1,6 +1,7 @@
 #ifndef POSITION_H
 #define POSITION_H
 
+#include <string>
 #include <vector>
 
 #define DOT '.'
@@ -35,6 +36,7 @@ public:
   bool operator>(const Position p) const;
   double operator-(const Position p);
   Position &operator=(const Position &p);
+  operator std::string();
 };
 
 /* Is the game over? */
