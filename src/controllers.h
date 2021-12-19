@@ -36,7 +36,7 @@ public:
    * @param `new_pos` the target's intended position.
    * @return the target's current position (after the move).
    */
-  Position move(Position old_pos, Position new_pos);
+  Position move(Position old_pos, Position new_pos, wchar_t *overwritten_char);
 
   /* Redraw the game's map. */
   void redraw();
@@ -75,10 +75,10 @@ public:
   ~Character();
 
   /* Move the charater one position in the given direction. */
-  void move(Direction direction);
+  void move(Direction direction, wchar_t *overwritten_char);
 
   /* Move the charater to the given position. */
-  void move(Position intended_pos);
+  void move(Position intended_pos, wchar_t *overwritten_char);
 };
 
 class Pacman : public Character {
@@ -103,6 +103,8 @@ class Ghost : public Character {
 private:
   /* The position the ghost was last in. */
   Position last_position;
+
+  wchar_t overwritten_char;
 
   /* Find out where the ghost should go next. */
   Position find_next_move(Position pacman_pos);

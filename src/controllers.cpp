@@ -55,15 +55,14 @@ void GameController::draw_map() {
   }
 }
 
-Position GameController::move(Position old_pos, Position new_pos) {
+Position GameController::move(Position old_pos, Position new_pos, wchar_t *overwritten_char) {
   if (this->map.position_valid(new_pos) && old_pos != new_pos) {
     wchar_t old_pos_cur_char = this->map.get_char(old_pos);
     wchar_t new_pos_cur_char = this->map.get_char(new_pos);
 
     bool is_pacman = old_pos_cur_char == PACMAN_ICON;
-    bool ghost_leaving_dot = this->ghost_above_dot && !is_pacman;
 
-    wchar_t old_pos_new_char = ghost_leaving_dot ? DOT : SPACE;
+    wchar_t old_pos_new_char = *overwritten_char;
     wchar_t new_pos_new_char = old_pos_cur_char;
 
     switch (new_pos_cur_char) {
@@ -79,15 +78,10 @@ Position GameController::move(Position old_pos, Position new_pos) {
     case DOT:
       if (is_pacman) {
         this->score++;
-      } else {
-        this->ghost_above_dot = true;
       }
       break;
 
     case SPACE:
-      if (ghost_leaving_dot) {
-        this->ghost_above_dot = false;
-      }
       break;
 
     default:
@@ -97,6 +91,7 @@ Position GameController::move(Position old_pos, Position new_pos) {
     this->map.update_map(old_pos, old_pos_new_char);
     this->map.update_map(new_pos, new_pos_new_char);
 
+    *overwritten_char = new_pos_cur_char;
     return new_pos;
   }
 
@@ -146,11 +141,11 @@ Character::Character(GameController *gc, unsigned int x, unsigned int y) {
   this->pos->y = y;
 }
 
-void Character::move(Direction direction) {
+void Character::move(Direction direction, wchar_t *overwritten_char) {
   Position intended_pos = (*this->pos);
   intended_pos.move(direction);
 
-  Position new_pos = gc->move(*this->pos, intended_pos);
+  Position new_pos = gc->move(*this->pos, intended_pos, overwritten_char);
 
   if (new_pos != *this->pos) {
     this->pos->x = new_pos.x;
@@ -158,8 +153,8 @@ void Character::move(Direction direction) {
   }
 }
 
-void Character::move(Position intended_pos) {
-  Position new_pos = gc->move(*this->pos, intended_pos);
+void Character::move(Position intended_pos, wchar_t *overwritten_char) {
+  Position new_pos = gc->move(*this->pos, intended_pos, overwritten_char);
 
   if (new_pos != *this->pos) {
     this->pos->x = new_pos.x;
@@ -184,7 +179,8 @@ Pacman::Pacman(GameController *gc, unsigned int x, unsigned int y)
 
 void Pacman::move() {
   this->m.lock();
-  Character::move(this->direction);
+  wchar_t space = SPACE;
+  Character::move(this->direction, &space);
   this->m.unlock();
 }
 
@@ -216,12 +212,13 @@ Ghost::Ghost(GameController *gc, unsigned int x, unsigned int y, AI type)
   this->last_position.x = x;
   this->last_position.y = y;
   this->type = type;
+  this->overwritten_char = ' ';
 }
 
 void Ghost::move(Position target) {
   Position pos = this->find_next_move(target);
   this->last_position = *this->pos;
-  Character::move(pos);
+  Character::move(pos, &this->overwritten_char);
 }
 
 Position Ghost::find_next_move(Position target) {
