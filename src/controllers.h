@@ -24,6 +24,9 @@ private:
   /* The player's score points. */
   unsigned int score;
 
+  /* If the running terminal emulator supports colors. */
+  bool has_color;
+
   /* Draws the game map to the screen. */
   void draw_map();
 

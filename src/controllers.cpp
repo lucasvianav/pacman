@@ -1,6 +1,7 @@
 #include "controllers.h"
 #include <algorithm>
 #include <curses.h>
+#include <ncurses.h>
 #include <iostream>
 #include <stdlib.h>
 #include <vector>
@@ -18,11 +19,22 @@ using namespace std;
 GameController::GameController() {
   // initializes ncurses
   this->window = initscr();
+  this->has_color = has_colors();
   keypad(this->window, true);
   nodelay(this->window, true);
   noecho();
   curs_set(false);
   cbreak();
+
+  if (this->has_color) {
+    start_color();
+
+    // ghosts' color
+    init_pair(1, COLOR_RED, COLOR_WHITE);
+
+    // set BG color to black
+    wattron(this->window, COLOR_BLACK);
+  }
 
   this->map = Map();
   this->draw_map();
@@ -31,6 +43,7 @@ GameController::GameController() {
 }
 
 GameController::~GameController() {
+  delwin(this->window);
   endwin();
   cout
     << "\n"
@@ -45,7 +58,15 @@ void GameController::draw_map() {
 
   for (unsigned int i = 0; i < n_rows; i++) {
     for (unsigned int j = 0; j < n_cols; j++) {
-      waddch(this->window, map_chars[i][j] | A_STANDOUT);
+      if (map_chars[i][j] == GHOST_ICON) {
+        if (this->has_color) {
+          waddch(this->window, map_chars[i][j] | A_BOLD | A_STANDOUT | COLOR_PAIR(1));
+        } else {
+          waddch(this->window, map_chars[i][j] | A_BOLD | A_STANDOUT);
+        }
+      } else {
+        waddch(this->window, map_chars[i][j]);
+      }
     }
 
     if (i == 0) {
