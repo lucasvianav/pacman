@@ -15,7 +15,7 @@ using namespace std;
  * \____|\__,_|_| |_| |_|\___|\____\___/|_| |_|\__|_|  \___/|_|_|\___|_|
  */
 
-GameController::GameController() {
+GameController::GameController() : map("01") {
   // initializes ncurses
   this->window = initscr();
   keypad(this->window, true);
@@ -24,7 +24,6 @@ GameController::GameController() {
   curs_set(false);
   cbreak();
 
-  this->map = Map();
   this->draw_map();
   this->ghost_above_dot = false;
   this->score = 0;

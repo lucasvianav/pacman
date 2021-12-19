@@ -29,6 +29,10 @@ double Position::operator-(const Position p) {
   return sqrt(pow(p.x - this->x, 2) + pow(p.y - this->y, 2));
 }
 
+Position::operator std::string() {
+  return std::to_string(this->x) + ", " + std::to_string(this->y);
+}
+
 Position Position::move(Direction dir) {
   switch (dir) {
   case UP:

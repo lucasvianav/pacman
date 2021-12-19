@@ -1,55 +1,51 @@
 #include "map.h"
+#include "utils.h"
+#include <cstdio>
+#include <curses.h>
+#include <fstream>
+#include <iostream>
 
 using namespace std;
 
-Map::Map() {
-  wchar_t ghs = GHOST_ICON;
-  wchar_t pac = PACMAN_ICON;
-  wchar_t spc = SPACE;
+Map::Map(string name) {
+  this->n_dots = 0;
 
-  this->map = {
-    {'*', '*', '*', '*', '*', '*', '*', '*', '*', '*', '*', '*', '*', '*', '*', '*', '*', '*', '*', '*', '*', '*', '*', '*', '*', '*', '*', '*'},
-    {'*', DOT, DOT, DOT, DOT, DOT, DOT, DOT, DOT, DOT, DOT, DOT, DOT, '*', '*', DOT, DOT, DOT, DOT, DOT, DOT, DOT, DOT, DOT, DOT, DOT, DOT, '*'},
-    {'*', DOT, '*', '*', '*', '*', DOT, '*', '*', '*', '*', '*', DOT, '*', '*', DOT, '*', '*', '*', '*', '*', DOT, '*', '*', '*', '*', DOT, '*'},
-    {'*', DOT, '*', '*', '*', '*', DOT, '*', '*', '*', '*', '*', DOT, DOT, DOT, DOT, '*', '*', '*', '*', '*', DOT, '*', '*', '*', '*', DOT, '*'},
-    {'*', DOT, '*', '*', '*', '*', DOT, '*', '*', '*', '*', '*', DOT, '*', '*', DOT, '*', '*', '*', '*', '*', DOT, '*', '*', '*', '*', DOT, '*'},
-    {'*', DOT, DOT, DOT, DOT, DOT, DOT, DOT, DOT, DOT, DOT, DOT, DOT, '*', '*', DOT, DOT, DOT, DOT, DOT, DOT, DOT, DOT, DOT, DOT, DOT, DOT, '*'},
-    {'*', DOT, '*', '*', '*', '*', DOT, '*', '*', DOT, '*', '*', '*', '*', '*', '*', '*', '*', DOT, '*', '*', DOT, '*', '*', '*', '*', DOT, '*'},
-    {'*', DOT, '*', '*', '*', '*', DOT, '*', '*', DOT, '*', '*', '*', '*', '*', '*', '*', '*', DOT, '*', '*', DOT, '*', '*', '*', '*', DOT, '*'},
-    {'*', DOT, DOT, DOT, DOT, DOT, DOT, '*', '*', DOT, DOT, DOT, DOT, '*', '*', DOT, DOT, DOT, DOT, '*', '*', DOT, DOT, DOT, DOT, DOT, DOT, '*'},
-    {'*', '*', '*', DOT, '*', '*', DOT, '*', '*', '*', '*', '*', DOT, '*', '*', DOT, '*', '*', '*', '*', '*', DOT, '*', '*', DOT, '*', '*', '*'},
-    {'*', '*', '*', DOT, '*', '*', DOT, '*', '*', '*', '*', '*', DOT, '*', '*', DOT, '*', '*', '*', '*', '*', DOT, '*', '*', DOT, '*', '*', '*'},
-    {'*', DOT, DOT, DOT, '*', '*', DOT, DOT, DOT, DOT, DOT, DOT, DOT, DOT, DOT, DOT, DOT, DOT, DOT, DOT, DOT, DOT, '*', '*', DOT, DOT, DOT, '*'},
-    {'*', DOT, '*', '*', '*', '*', DOT, '*', '*', DOT, '#', '#', '#', spc, spc, '#', '#', '#', DOT, '*', '*', DOT, '*', '*', '*', '*', DOT, '*'},
-    {'*', DOT, '*', '*', '*', '*', DOT, '*', '*', DOT, '#', spc, spc, spc, spc, spc, spc, '#', DOT, '*', '*', DOT, '*', '*', '*', '*', DOT, '*'},
-    {'*', DOT, DOT, DOT, DOT, DOT, DOT, '*', '*', DOT, '#', spc, ghs, ghs, ghs, ghs, spc, '#', DOT, '*', '*', DOT, DOT, DOT, DOT, DOT, DOT, '*'},
-    {'*', DOT, '*', '*', '*', '*', DOT, '*', '*', DOT, '#', spc, spc, spc, spc, spc, spc, '#', DOT, '*', '*', DOT, '*', '*', '*', '*', DOT, '*'},
-    {'*', DOT, '*', '*', '*', '*', DOT, '*', '*', DOT, '#', '#', '#', '#', '#', '#', '#', '#', DOT, '*', '*', DOT, '*', '*', '*', '*', DOT, '*'},
-    {'*', DOT, DOT, DOT, '*', '*', DOT, '*', '*', DOT, DOT, DOT, DOT, DOT, DOT, DOT, DOT, DOT, DOT, '*', '*', DOT, '*', '*', DOT, DOT, DOT, '*'},
-    {'*', '*', '*', DOT, '*', '*', DOT, '*', '*', DOT, '*', '*', '*', '*', '*', '*', '*', '*', DOT, '*', '*', DOT, '*', '*', DOT, '*', '*', '*'},
-    {'*', '*', '*', DOT, '*', '*', DOT, '*', '*', DOT, '*', '*', '*', '*', '*', '*', '*', '*', DOT, '*', '*', DOT, '*', '*', DOT, '*', '*', '*'},
-    {'*', DOT, DOT, DOT, DOT, DOT, DOT, DOT, DOT, DOT, DOT, DOT, DOT, DOT, pac, DOT, DOT, DOT, DOT, DOT, DOT, DOT, DOT, DOT, DOT, DOT, DOT, '*'},
-    {'*', DOT, '*', '*', '*', '*', DOT, '*', '*', '*', '*', '*', DOT, '*', '*', DOT, '*', '*', '*', '*', '*', DOT, '*', '*', '*', '*', DOT, '*'},
-    {'*', DOT, '*', '*', '*', '*', DOT, '*', '*', '*', '*', '*', DOT, '*', '*', DOT, '*', '*', '*', '*', '*', DOT, '*', '*', '*', '*', DOT, '*'},
-    {'*', DOT, DOT, DOT, '*', '*', DOT, DOT, DOT, DOT, DOT, DOT, DOT, '*', '*', DOT, DOT, DOT, DOT, DOT, DOT, DOT, '*', '*', DOT, DOT, DOT, '*'},
-    {'*', '*', '*', DOT, '*', '*', DOT, '*', '*', DOT, '*', '*', '*', '*', '*', '*', '*', '*', DOT, '*', '*', DOT, '*', '*', DOT, '*', '*', '*'},
-    {'*', '*', '*', DOT, '*', '*', DOT, '*', '*', DOT, '*', '*', '*', '*', '*', '*', '*', '*', DOT, '*', '*', DOT, '*', '*', DOT, '*', '*', '*'},
-    {'*', DOT, DOT, DOT, DOT, DOT, DOT, '*', '*', DOT, DOT, DOT, DOT, '*', '*', DOT, DOT, DOT, DOT, '*', '*', DOT, DOT, DOT, DOT, DOT, DOT, '*'},
-    {'*', DOT, '*', '*', '*', '*', DOT, '*', '*', '*', '*', '*', DOT, '*', '*', DOT, '*', '*', '*', '*', '*', DOT, '*', '*', '*', '*', DOT, '*'},
-    {'*', DOT, '*', '*', '*', '*', DOT, '*', '*', '*', '*', '*', DOT, '*', '*', DOT, '*', '*', '*', '*', '*', DOT, '*', '*', '*', '*', DOT, '*'},
-    {'*', DOT, DOT, DOT, DOT, DOT, DOT, DOT, DOT, DOT, DOT, DOT, DOT, DOT, DOT, DOT, DOT, DOT, DOT, DOT, DOT, DOT, DOT, DOT, DOT, DOT, DOT, '*'},
-    {'*', '*', '*', '*', '*', '*', '*', '*', '*', '*', '*', '*', '*', '*', '*', '*', '*', '*', '*', '*', '*', '*', '*', '*', '*', '*', '*', '*'},
-  };
-  this->n_rows = 31;
-  this->n_cols = 28;
-  this->n_dots = 329;
-  this->ghosts_positions = {
-    { 12, 14 },
-    { 13, 14 },
-    { 14, 14 },
-    { 15, 14 },
-  };
-  this->pacman_posision = { 14, 20 };
+  ifstream f;
+  f.open("./maps/" + name + ".txt");
+
+  char tmp_char;
+  Position tmp_pos;
+
+  unsigned int x = -1, y = 0;
+
+  this->map.push_back({});
+  while (f) {
+    tmp_char = f.get();
+
+    if (tmp_char != '\n') {
+      this->map.back().push_back(tmp_char);
+      x++;
+    } else {
+      this->map.push_back({});
+      y++;
+      x = -1;
+    }
+
+    tmp_pos = {x, y};
+
+    if (tmp_char == PACMAN_ICON) {
+      this->pacman_posision = tmp_pos;
+    } else if (tmp_char == GHOST_ICON) {
+      this->ghosts_positions.push_back(tmp_pos);
+    } else if (tmp_char == DOT) {
+      this->n_dots++;
+    }
+  }
+
+  f.close();
+
+  this->n_rows = this->map.size();
+  this->n_cols = this->map.front().size();
 }
 
 vector<vector<wchar_t>> Map::get_map() { return this->map; };
@@ -81,41 +77,41 @@ vector<Position> Map::get_adjacency_list(Position pos) {
   Position neighbor;
 
   // to the left
-  if(pos.x != 0) {
-    neighbor.x = pos.x-1;
+  if (pos.x != 0) {
+    neighbor.x = pos.x - 1;
     neighbor.y = pos.y;
 
-    if(this->is_walkable(neighbor)) {
+    if (this->is_walkable(neighbor)) {
       adjacencies.push_back(neighbor);
     }
   }
 
   // to the right
-  if(pos.x != this->get_n_cols() - 1) {
-    neighbor.x = pos.x+1;
+  if (pos.x != this->get_n_cols() - 1) {
+    neighbor.x = pos.x + 1;
     neighbor.y = pos.y;
 
-    if(this->is_walkable(neighbor)) {
+    if (this->is_walkable(neighbor)) {
       adjacencies.push_back(neighbor);
     }
   }
 
   // to the bottom
-  if(pos.y != this->get_n_rows() - 1) {
+  if (pos.y != this->get_n_rows() - 1) {
     neighbor.x = pos.x;
-    neighbor.y = pos.y+1;
+    neighbor.y = pos.y + 1;
 
-    if(this->is_walkable(neighbor)) {
+    if (this->is_walkable(neighbor)) {
       adjacencies.push_back(neighbor);
     }
   }
 
   // to the top
-  if(pos.y != 0) {
+  if (pos.y != 0) {
     neighbor.x = pos.x;
-    neighbor.y = pos.y-1;
+    neighbor.y = pos.y - 1;
 
-    if(this->is_walkable(neighbor)) {
+    if (this->is_walkable(neighbor)) {
       adjacencies.push_back(neighbor);
     }
   }
