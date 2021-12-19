@@ -20,6 +20,9 @@ private:
   /* Number of points in the map. */
   unsigned int n_dots;
 
+  /* Check if given position can be "walked" by a character. */
+  bool is_walkable(Position pos);
+
 public:
   Map();
 
@@ -43,6 +46,15 @@ public:
 
   /* Check if position is within the map's bounds. */
   bool position_valid(Position pos);
+
+  /* Getter for the adjacency list of a given position. */
+  vector<Position> get_adjacency_list(Position pos);
+
+  /* The positions of all ghosts in the map. */
+  vector<Position> ghosts_positions;
+
+  /* The positions of Pacman in the map. */
+  Position pacman_posision;
 };
 
 #endif

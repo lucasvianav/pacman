@@ -8,13 +8,15 @@
 #define PACMAN_ICON '@'
 #define SPACE ' '
 
-#define GHOST_DELAY 90000000
-#define INPUT_DELAY 10000
-#define PACMAN_DELAY 90000000
-#define MAP_REFRESH_DELAY 90000000
+#define GHOST_DELAY 300000
+#define INPUT_DELAY 10
+#define PACMAN_DELAY 70000
 
 /* UP = 0, DOWN = 1, LEFT = 2, RIGHT = 3 */
 enum Direction { UP = 0, DOWN = 1, LEFT = 2, RIGHT = 3 };
+
+/* Artificial Intelligence type for a ghost.j */
+enum AI { DEPTH, BREADTH, BEST, RANDOM };
 
 struct Position {
 public:
@@ -29,6 +31,9 @@ public:
 
   bool operator==(const Position p);
   bool operator!=(const Position p);
+  bool operator<(const Position p) const;
+  bool operator>(const Position p) const;
+  double operator-(const Position p);
   Position &operator=(const Position &p);
 };
 

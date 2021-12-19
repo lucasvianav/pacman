@@ -1,18 +1,26 @@
 #include "controllers.h"
 #include "map.h"
 #include "utils.h"
+#include <chrono>
 #include <clocale>
 #include <thread>
 
 using namespace std;
 
+#define N_THREADS 4
+
 int main() {
   setlocale(LC_ALL, "");
 
   GameController gc;
-  Pacman pacman{&gc, 14, 20};
-  Ghost inky{&gc, 12, 14};
+  Pacman pacman{&gc};
   WINDOW *window = gc.get_window();
+
+  auto ghosts_positions = gc.get_ghosts_positions();
+  Ghost inky{&gc, BREADTH, ghosts_positions[0]};
+  Ghost blinky{&gc, DEPTH, ghosts_positions[1]};
+  Ghost clyde{&gc, RANDOM, ghosts_positions[2]};
+  Ghost pinky{&gc, BEST, ghosts_positions[3]};
 
   auto user_input = [&pacman, &gc, &window]() {
     int delay = INPUT_DELAY;
@@ -66,7 +74,7 @@ int main() {
         break;
       }
 
-      this_thread::sleep_for(chrono::nanoseconds(delay));
+      this_thread::sleep_for(chrono::microseconds(delay));
     }
   };
 
@@ -78,11 +86,13 @@ int main() {
         break;
       }
 
-      this_thread::sleep_for(chrono::nanoseconds(PACMAN_DELAY));
+      this_thread::sleep_for(chrono::microseconds(PACMAN_DELAY));
     }
   };
 
   auto map_refreshing = [&]() {
+    auto delay = min(GHOST_DELAY, PACMAN_DELAY);
+
     while (true) {
       gc.redraw();
 
@@ -90,30 +100,35 @@ int main() {
         break;
       }
 
-      this_thread::sleep_for(chrono::nanoseconds(MAP_REFRESH_DELAY));
+      this_thread::sleep_for(chrono::microseconds(delay));
     }
   };
 
-  auto inky_movement = [&inky, &gc]() {
+  auto ghosts_movement = [&inky, &blinky, &clyde, &pinky, &gc, &pacman]() {
+    this_thread::sleep_for(chrono::seconds(1));
+
     while (true) {
-      inky.move();
+      inky.move(pacman.get_positon());
+      blinky.move(pacman.get_positon());
+      clyde.move(pacman.get_positon());
+      pinky.move(pacman.get_positon());
 
       if (should_quit() || gc.won()) {
         break;
       }
 
-      this_thread::sleep_for(chrono::nanoseconds(GHOST_DELAY));
+      this_thread::sleep_for(chrono::microseconds(GHOST_DELAY));
     }
   };
 
-  thread threads[4] = {
+  thread threads[N_THREADS] = {
       thread(user_input),
       thread(pacman_movement),
       thread(map_refreshing),
-      thread(inky_movement),
+      thread(ghosts_movement),
   };
 
-  for (int i = 0; i < 4; i++) {
+  for (int i = 0; i < N_THREADS; i++) {
     threads[i].join();
   }
 
