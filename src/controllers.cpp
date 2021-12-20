@@ -1,4 +1,5 @@
 #include "controllers.h"
+#include "utils.h"
 #include <algorithm>
 #include <clocale>
 #include <curses.h>
@@ -106,8 +107,12 @@ void GameController::reset() {
 }
 
 void GameController::toggle_pause() {
-  this->paused = !this->paused;
-  this->redrawn_paused = false;
+  if (!this->won() || should_quit()) {
+    this->paused = !this->paused;
+    this->redrawn_paused = false;
+  } else {
+    this->paused = false;
+  }
 }
 
 void GameController::start() {
