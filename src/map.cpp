@@ -1,17 +1,31 @@
 #include "map.h"
 #include "utils.h"
 #include <cstdio>
-#include <curses.h>
 #include <fstream>
 #include <iostream>
+
+// color profiles
+#define STANDARD_COLORS 0
+#define PACMAN_COLORS 1
+#define GHOST_COLORS 2
 
 using namespace std;
 
 Map::Map(string name) {
   this->n_dots = 0;
+  this->colors = has_colors();
+
+  if (this->colors) {
+    start_color();
+
+    // color profiles
+    init_pair(STANDARD_COLORS, COLOR_WHITE, COLOR_BLACK);
+    init_pair(GHOST_COLORS, COLOR_RED, COLOR_WHITE);
+    init_pair(PACMAN_COLORS, COLOR_YELLOW, COLOR_BLACK);
+  }
 
   ifstream f;
-  f.open("./maps/" + name + ".txt");
+  f.open("./screens/" + name + ".txt");
 
   char tmp_char;
   Position tmp_pos;
@@ -44,8 +58,64 @@ Map::Map(string name) {
 
   f.close();
 
+  // last element will be an empty row
+  this->map.pop_back();
+
   this->n_rows = this->map.size();
   this->n_cols = this->map.front().size();
+}
+
+void Map::draw(WINDOW *window, int score, bool paused) {
+  erase();
+
+  // set BG color to black
+  wbkgd(window, A_NORMAL | COLOR_PAIR(0));
+
+  for (unsigned int i = 0; i < this->n_rows; i++) {
+    for (unsigned int j = 0; j < this->n_cols; j++) {
+      if (this->colors) {
+        if (this->map[i][j] == GHOST_ICON) {
+          waddch(window, this->map[i][j] | A_BOLD | A_STANDOUT |
+                             COLOR_PAIR(GHOST_COLORS));
+        } else if (this->map[i][j] == PACMAN_ICON) {
+          waddch(window, this->map[i][j] | A_BOLD | COLOR_PAIR(PACMAN_COLORS));
+        } else if (this->map[i][j] == DOT) {
+          waddch(window, this->map[i][j] | A_DIM | COLOR_PAIR(STANDARD_COLORS));
+        } else {
+          waddch(window,
+                 this->map[i][j] | A_NORMAL | COLOR_PAIR(STANDARD_COLORS));
+        }
+      } else {
+        if (this->map[i][j] == GHOST_ICON) {
+          waddch(window, this->map[i][j] | A_BOLD | A_STANDOUT);
+        } else if (this->map[i][j] == PACMAN_ICON) {
+          waddch(window, this->map[i][j] | A_BOLD);
+        } else if (this->map[i][j] == DOT) {
+          waddch(window, this->map[i][j] | A_DIM);
+        } else {
+          waddch(window, this->map[i][j] | A_NORMAL);
+        }
+      }
+    }
+
+    if (i == 0 && score != -1 && this->n_dots) {
+      waddstr(window, "      ");
+      char score_str[20];
+      sprintf(score_str, "SCORE: %d/%d", score, this->n_dots);
+
+      attron(A_UNDERLINE);
+      waddstr(window, score_str);
+      attroff(A_UNDERLINE);
+    } else if (i == 2 && paused && this->n_dots) {
+      waddstr(window, "      ");
+
+      attron(A_BOLD | A_STANDOUT);
+      waddstr(window, ">> PAUSED <<");
+      attroff(A_BOLD | A_STANDOUT);
+    }
+
+    waddch(window, '\n');
+  }
 }
 
 vector<vector<wchar_t>> Map::get_map() { return this->map; };

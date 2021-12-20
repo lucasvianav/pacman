@@ -1,6 +1,7 @@
 #include "controllers.h"
 #include "utils.h"
 #include <algorithm>
+#include <clocale>
 #include <curses.h>
 #include <ncurses.h>
 #include <iostream>
@@ -17,31 +18,20 @@ using namespace std;
  * \____|\__,_|_| |_| |_|\___|\____\___/|_| |_|\__|_|  \___/|_|_|\___|_|
  */
 
-GameController::GameController() : map("01") {
+GameController::GameController() : map("start") {
   // initializes ncurses
+  setlocale(LC_ALL, "");
   this->window = initscr();
-  this->has_color = has_colors();
   keypad(this->window, true);
   nodelay(this->window, true);
   noecho();
   curs_set(false);
   cbreak();
 
-  if (this->has_color) {
-    start_color();
-
-    // color profiles
-    init_pair(STANDARD_COLORS, COLOR_WHITE,  COLOR_BLACK);
-    init_pair(GHOST_COLORS,    COLOR_RED,    COLOR_WHITE);
-    init_pair(PACMAN_COLORS,   COLOR_YELLOW, COLOR_BLACK);
-
-    // set BG color to black
-    wbkgd(this->window, A_NORMAL | COLOR_PAIR(0));
-  }
-
-  this->draw_map();
-  this->ghost_above_dot = false;
+  this->paused = true;
+  this->redrawn_paused = false;
   this->score = 0;
+  this->draw_map();
 }
 
 GameController::~GameController() {
@@ -54,39 +44,7 @@ GameController::~GameController() {
 }
 
 void GameController::draw_map() {
-  vector<vector<wchar_t>> map_chars = this->map.get_map();
-  unsigned int n_rows = this->map.get_n_rows();
-  unsigned int n_cols = this->map.get_n_cols();
-
-  for (unsigned int i = 0; i < n_rows; i++) {
-    for (unsigned int j = 0; j < n_cols; j++) {
-      if (this->has_color) {
-        if (map_chars[i][j] == GHOST_ICON) {
-          waddch(this->window, map_chars[i][j] | A_BOLD | A_STANDOUT | COLOR_PAIR(GHOST_COLORS));
-        } else if (map_chars[i][j] == PACMAN_ICON) {
-          waddch(this->window, map_chars[i][j] | A_BOLD | COLOR_PAIR(PACMAN_COLORS));
-        } else {
-          waddch(this->window, map_chars[i][j] | A_NORMAL | COLOR_PAIR(STANDARD_COLORS));
-        }
-      } else {
-        if (map_chars[i][j] == GHOST_ICON) {
-          waddch(this->window, map_chars[i][j] | A_BOLD | A_STANDOUT);
-        } else if (map_chars[i][j] == PACMAN_ICON) {
-          waddch(this->window, map_chars[i][j] | A_BOLD);
-        } else {
-          waddch(this->window, map_chars[i][j] | A_NORMAL);
-        }
-      }
-    }
-
-    if (i == 0) {
-      char score[21];
-      sprintf(score, "      SCORE: %d/%d", this->score, this->map.get_n_dots());
-      waddstr(this->window, score);
-    }
-
-    waddch(this->window, '\n');
-  }
+  this->map.draw(this->window, this->score, this->paused);
 }
 
 Position GameController::move(Position old_pos, Position new_pos, wchar_t *overwritten_char) {
@@ -133,6 +91,14 @@ Position GameController::move(Position old_pos, Position new_pos, wchar_t *overw
 }
 
 void GameController::redraw() {
+  if (this->paused) {
+    if (this->redrawn_paused) {
+      return;
+    } else {
+      this->redrawn_paused =  true;
+    }
+  }
+
   erase();
   wrefresh(this->window);
   this->draw_map();
@@ -145,11 +111,29 @@ void GameController::reset() {
   wrefresh(this->window);
 }
 
+void GameController::toggle_pause() {
+  if (!this->won() || should_quit()) {
+    this->paused = !this->paused;
+    this->redrawn_paused = false;
+  } else {
+    this->paused = false;
+  }
+}
+
+void GameController::start() {
+  this->map = Map("map-01");
+  this->paused = false;
+  this->redrawn_paused = false;
+  this->draw_map();
+}
+
 WINDOW *GameController::get_window() { return this->window; }
 
 int GameController::get_score() { return this->score; }
 
 bool GameController::won() { return this->score == this->map.get_n_dots(); }
+
+bool GameController::is_paused() { return this->paused; }
 
 bool GameController::direction_blocked(Position pos, Direction dir) {
   wchar_t character = this->map.get_char(pos.move(dir));
@@ -220,6 +204,10 @@ Pacman::Pacman(GameController *gc)
 }
 
 void Pacman::move() {
+  if (this->gc->is_paused()) {
+    return;
+  }
+
   this->m.lock();
   wchar_t space = SPACE;
   Character::move(this->direction, &space);
@@ -227,6 +215,10 @@ void Pacman::move() {
 }
 
 void Pacman::turn(Direction dir) {
+  if (this->gc->is_paused()) {
+    return;
+  }
+
   bool is_blocked = this->gc->direction_blocked(*this->pos, dir);
   if (!is_blocked) {
     this->direction = dir;
@@ -258,6 +250,10 @@ Ghost::Ghost(GameController *gc, AI type, Position pos)
 }
 
 void Ghost::move(Position target) {
+  if (this->gc->is_paused()) {
+    return;
+  }
+
   Position pos = this->find_next_move(target);
   this->last_position = *this->pos;
   Character::move(pos, &this->overwritten_char);

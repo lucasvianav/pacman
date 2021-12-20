@@ -2,20 +2,33 @@
 #include "map.h"
 #include "utils.h"
 #include <chrono>
-#include <clocale>
+#include <cstdio>
 #include <thread>
+#include <unistd.h>
 
 using namespace std;
 
 #define N_THREADS 4
 
 int main() {
-  setlocale(LC_ALL, "");
-
   GameController gc;
-  Pacman pacman{&gc};
   WINDOW *window = gc.get_window();
 
+  int pressed_key;
+  while (true) {
+    pressed_key = wgetch(window);
+
+    // <Enter> key
+    if (pressed_key == '\n') {
+      gc.start();
+      break;
+    }
+
+    usleep(INPUT_DELAY);
+  }
+
+  // characters
+  Pacman pacman{&gc};
   auto ghosts_positions = gc.get_ghosts_positions();
   Ghost inky{&gc, AI::BREADTH, ghosts_positions[0]};
   Ghost blinky{&gc, AI::DEPTH, ghosts_positions[1]};
@@ -23,7 +36,6 @@ int main() {
   Ghost pinky{&gc, AI::BEST, ghosts_positions[3]};
 
   auto user_input = [&pacman, &gc, &window]() {
-    int delay = INPUT_DELAY;
     Direction dir;
     int pressed_key;
 
@@ -35,6 +47,13 @@ int main() {
 
     while (true) {
       pressed_key = wgetch(window);
+
+      // <Enter> key
+      if (pressed_key == '\n') {
+        gc.toggle_pause();
+      } else if (gc.is_paused()) {
+        continue;
+      }
 
       // parse pressed key
       switch (pressed_key) {
@@ -74,7 +93,7 @@ int main() {
         break;
       }
 
-      this_thread::sleep_for(chrono::microseconds(delay));
+      this_thread::sleep_for(chrono::microseconds(INPUT_DELAY));
     }
   };
 

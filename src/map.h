@@ -2,6 +2,7 @@
 #define MAP_H
 
 #include "utils.h"
+#include <curses.h>
 #include <string>
 #include <vector>
 
@@ -20,6 +21,9 @@ private:
 
   /* Number of points in the map. */
   unsigned int n_dots;
+
+  /* If the running terminal emulator supports colors. */
+  bool colors;
 
   /* Check if given position can be "walked" by a character. */
   bool is_walkable(Position pos);
@@ -44,6 +48,9 @@ public:
 
   /* Sets the character at a given position to a given value. */
   void update_map(Position pos, char value);
+
+  /* Draws the map to the screen. */
+  void draw(WINDOW *window, int score, bool paused);
 
   /* Check if position is within the map's bounds. */
   bool position_valid(Position pos);
