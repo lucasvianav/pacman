@@ -18,7 +18,7 @@
 // delays
 #define GHOST_DELAY 300000
 #define INPUT_DELAY 10
-#define PACMAN_DELAY 70000
+#define PACMAN_DELAY 99000
 
 /* UP = 0, DOWN = 1, LEFT = 2, RIGHT = 3 */
 enum Direction { UP = 0, DOWN = 1, LEFT = 2, RIGHT = 3 };
