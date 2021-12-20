@@ -108,10 +108,10 @@ int main() {
     this_thread::sleep_for(chrono::seconds(1));
 
     while (true) {
-      inky.move(pacman.get_positon());
-      blinky.move(pacman.get_positon());
-      clyde.move(pacman.get_positon());
-      pinky.move(pacman.get_positon());
+      inky.move(pacman.get_position());
+      blinky.move(pacman.get_position());
+      clyde.move(pacman.get_position());
+      pinky.move(pacman.get_position());
 
       if (should_quit() || gc.won()) {
         break;

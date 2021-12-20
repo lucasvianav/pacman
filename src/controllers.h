@@ -108,7 +108,7 @@ public:
   void move();
 
   /* Getter for Pacman's position. */
-  Position get_positon();
+  Position get_position();
 };
 
 class Ghost : public Character {

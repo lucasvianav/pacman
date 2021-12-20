@@ -233,7 +233,7 @@ void Pacman::turn(Direction dir) {
   }
 }
 
-Position Pacman::get_positon() {
+Position Pacman::get_position() {
   this->m.lock();
   Position pos = *this->pos;
   this->m.unlock();
