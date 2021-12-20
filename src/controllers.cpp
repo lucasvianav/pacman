@@ -1,5 +1,6 @@
 #include "controllers.h"
 #include <algorithm>
+#include <clocale>
 #include <curses.h>
 #include <iostream>
 #include <stdlib.h>
@@ -15,8 +16,9 @@ using namespace std;
  * \____|\__,_|_| |_| |_|\___|\____\___/|_| |_|\__|_|  \___/|_|_|\___|_|
  */
 
-GameController::GameController() : map("01") {
+GameController::GameController() : map("start") {
   // initializes ncurses
+  setlocale(LC_ALL, "");
   this->window = initscr();
   keypad(this->window, true);
   nodelay(this->window, true);
@@ -24,10 +26,10 @@ GameController::GameController() : map("01") {
   curs_set(false);
   cbreak();
 
-  this->draw_map();
-  this->paused = false;
+  this->paused = true;
   this->redrawn_paused = false;
   this->score = 0;
+  this->draw_map();
 }
 
 GameController::~GameController() {
@@ -36,33 +38,7 @@ GameController::~GameController() {
 }
 
 void GameController::draw_map() {
-  vector<vector<wchar_t>> map_chars = this->map.get_map();
-  unsigned int n_rows = this->map.get_n_rows();
-  unsigned int n_cols = this->map.get_n_cols();
-
-  for (unsigned int i = 0; i < n_rows; i++) {
-    for (unsigned int j = 0; j < n_cols; j++) {
-      waddch(this->window, map_chars[i][j]);
-    }
-
-    if (i == 0) {
-      waddstr(this->window, "      ");
-      char score[20];
-      sprintf(score, "SCORE: %d/%d", this->score, this->map.get_n_dots());
-
-      attron(A_UNDERLINE);
-      waddstr(this->window, score);
-      attroff(A_UNDERLINE);
-    } else if (i == 2 && this->paused) {
-      waddstr(this->window, "      ");
-
-      attron(A_BOLD | A_STANDOUT);
-      waddstr(this->window, ">> PAUSED <<");
-      attroff(A_BOLD | A_STANDOUT);
-    }
-
-    waddch(this->window, '\n');
-  }
+  this->map.draw(this->window, this->score, this->paused);
 }
 
 Position GameController::move(Position old_pos, Position new_pos, wchar_t *overwritten_char) {
@@ -132,6 +108,13 @@ void GameController::reset() {
 void GameController::toggle_pause() {
   this->paused = !this->paused;
   this->redrawn_paused = false;
+}
+
+void GameController::start() {
+  this->map = Map("map-01");
+  this->paused = false;
+  this->redrawn_paused = false;
+  this->draw_map();
 }
 
 WINDOW *GameController::get_window() { return this->window; }

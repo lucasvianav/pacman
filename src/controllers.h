@@ -55,6 +55,9 @@ public:
   /* Play/pause the game. */
   void toggle_pause();
 
+  /* Start the game. */
+  void start();
+
   /* Getter for the game window. */
   WINDOW *get_window();
 

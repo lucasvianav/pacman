@@ -2,6 +2,7 @@
 #define MAP_H
 
 #include "utils.h"
+#include <curses.h>
 #include <string>
 #include <vector>
 
@@ -44,6 +45,9 @@ public:
 
   /* Sets the character at a given position to a given value. */
   void update_map(Position pos, char value);
+
+  /* Draws the map to the screen. */
+  void draw(WINDOW *window, int score, bool paused);
 
   /* Check if position is within the map's bounds. */
   bool position_valid(Position pos);

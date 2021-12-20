@@ -11,7 +11,7 @@ Map::Map(string name) {
   this->n_dots = 0;
 
   ifstream f;
-  f.open("./maps/" + name + ".txt");
+  f.open("./screens/" + name + ".txt");
 
   char tmp_char;
   Position tmp_pos;
@@ -44,8 +44,37 @@ Map::Map(string name) {
 
   f.close();
 
+  // last element will be an empty row
+  this->map.pop_back();
+
   this->n_rows = this->map.size();
   this->n_cols = this->map.front().size();
+}
+
+void Map::draw(WINDOW *window, int score, bool paused) {
+  for (unsigned int i = 0; i < this->n_rows; i++) {
+    for (unsigned int j = 0; j < this->n_cols; j++) {
+      waddch(window, this->map[i][j]);
+    }
+
+    if (i == 0 && score != -1 && this->n_dots) {
+      waddstr(window, "      ");
+      char score_str[20];
+      sprintf(score_str, "SCORE: %d/%d", score, this->n_dots);
+
+      attron(A_UNDERLINE);
+      waddstr(window, score_str);
+      attroff(A_UNDERLINE);
+    } else if (i == 2 && paused && this->n_dots) {
+      waddstr(window, "      ");
+
+      attron(A_BOLD | A_STANDOUT);
+      waddstr(window, ">> PAUSED <<");
+      attroff(A_BOLD | A_STANDOUT);
+    }
+
+    waddch(window, '\n');
+  }
 }
 
 vector<vector<wchar_t>> Map::get_map() { return this->map; };
