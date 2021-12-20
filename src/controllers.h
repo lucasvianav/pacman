@@ -17,12 +17,14 @@ private:
   /* Game screen. */
   WINDOW *window;
 
-  // TODO: expand this to work for all ghosts
-  /* Is the ghost above a dot (point)? */
-  bool ghost_above_dot;
+  /* Is the game paused? */
+  bool paused;
 
   /* The player's score points. */
   unsigned int score;
+
+  /* Was the game was redrawn while paused? */
+  bool redrawn_paused;
 
   /* Draws the game map to the screen. */
   void draw_map();
@@ -50,6 +52,9 @@ public:
   /* Reset the screen. */
   void reset();
 
+  /* Play/pause the game. */
+  void toggle_pause();
+
   /* Getter for the game window. */
   WINDOW *get_window();
 
@@ -58,6 +63,9 @@ public:
 
   /* Did the player win? */
   bool won();
+
+  /* Is the game paused? */
+  bool is_paused();
 
   /* Check if a position is blocked from a certain direction. */
   bool direction_blocked(Position pos, Direction dir);

@@ -25,7 +25,8 @@ GameController::GameController() : map("01") {
   cbreak();
 
   this->draw_map();
-  this->ghost_above_dot = false;
+  this->paused = false;
+  this->redrawn_paused = false;
   this->score = 0;
 }
 
@@ -45,9 +46,19 @@ void GameController::draw_map() {
     }
 
     if (i == 0) {
-      char score[21];
-      sprintf(score, "      SCORE: %d/%d", this->score, this->map.get_n_dots());
+      waddstr(this->window, "      ");
+      char score[20];
+      sprintf(score, "SCORE: %d/%d", this->score, this->map.get_n_dots());
+
+      attron(A_UNDERLINE);
       waddstr(this->window, score);
+      attroff(A_UNDERLINE);
+    } else if (i == 2 && this->paused) {
+      waddstr(this->window, "      ");
+
+      attron(A_BOLD | A_STANDOUT);
+      waddstr(this->window, ">> PAUSED <<");
+      attroff(A_BOLD | A_STANDOUT);
     }
 
     waddch(this->window, '\n');
@@ -98,6 +109,14 @@ Position GameController::move(Position old_pos, Position new_pos, wchar_t *overw
 }
 
 void GameController::redraw() {
+  if (this->paused) {
+    if (this->redrawn_paused) {
+      return;
+    } else {
+      this->redrawn_paused =  true;
+    }
+  }
+
   erase();
   wrefresh(this->window);
   this->draw_map();
@@ -110,11 +129,18 @@ void GameController::reset() {
   wrefresh(this->window);
 }
 
+void GameController::toggle_pause() {
+  this->paused = !this->paused;
+  this->redrawn_paused = false;
+}
+
 WINDOW *GameController::get_window() { return this->window; }
 
 int GameController::get_score() { return this->score; }
 
 bool GameController::won() { return this->score == this->map.get_n_dots(); }
+
+bool GameController::is_paused() { return this->paused; }
 
 bool GameController::direction_blocked(Position pos, Direction dir) {
   wchar_t character = this->map.get_char(pos.move(dir));
@@ -185,6 +211,10 @@ Pacman::Pacman(GameController *gc)
 }
 
 void Pacman::move() {
+  if (this->gc->is_paused()) {
+    return;
+  }
+
   this->m.lock();
   wchar_t space = SPACE;
   Character::move(this->direction, &space);
@@ -192,6 +222,10 @@ void Pacman::move() {
 }
 
 void Pacman::turn(Direction dir) {
+  if (this->gc->is_paused()) {
+    return;
+  }
+
   bool is_blocked = this->gc->direction_blocked(*this->pos, dir);
   if (!is_blocked) {
     this->direction = dir;
@@ -223,6 +257,10 @@ Ghost::Ghost(GameController *gc, AI type, Position pos)
 }
 
 void Ghost::move(Position target) {
+  if (this->gc->is_paused()) {
+    return;
+  }
+
   Position pos = this->find_next_move(target);
   this->last_position = *this->pos;
   Character::move(pos, &this->overwritten_char);

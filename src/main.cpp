@@ -36,6 +36,13 @@ int main() {
     while (true) {
       pressed_key = wgetch(window);
 
+      // <Enter> key
+      if (pressed_key == '\n') {
+        gc.toggle_pause();
+      } else if (gc.is_paused()) {
+        continue;
+      }
+
       // parse pressed key
       switch (pressed_key) {
       case KEY_UP:
