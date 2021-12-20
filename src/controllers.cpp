@@ -75,8 +75,8 @@ Position GameController::move(Position old_pos, Position new_pos, wchar_t *overw
       return old_pos;
     }
 
-    this->screen.update_screen(old_pos, old_pos_new_char);
-    this->screen.update_screen(new_pos, new_pos_new_char);
+    this->screen.set_char(old_pos, old_pos_new_char);
+    this->screen.set_char(new_pos, new_pos_new_char);
 
     *overwritten_char = new_pos_cur_char;
     return new_pos;

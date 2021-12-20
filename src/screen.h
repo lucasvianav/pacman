@@ -44,7 +44,7 @@ public:
   unsigned int get_n_dots();
 
   /* Sets the character at a given position to a given value. */
-  void update_screen(Position pos, char value);
+  void set_char(Position pos, char value);
 
   /* Draws the screen to the screen. */
   void draw(WINDOW *window, int score, bool paused);

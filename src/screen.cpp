@@ -87,7 +87,7 @@ unsigned int Screen::get_n_cols() { return this->n_cols; };
 
 unsigned int Screen::get_n_dots() { return this->n_dots; };
 
-void Screen::update_screen(Position pos, char value) {
+void Screen::set_char(Position pos, char value) {
   this->screen[pos.y][pos.x] = value;
 }
 
