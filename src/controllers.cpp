@@ -17,7 +17,7 @@ using namespace std;
  * \____|\__,_|_| |_| |_|\___|\____\___/|_| |_|\__|_|  \___/|_|_|\___|_|
  */
 
-GameController::GameController() : map("start") {
+GameController::GameController() : screen("start") {
   // initializes ncurses
   setlocale(LC_ALL, "");
   this->window = initscr();
@@ -30,7 +30,7 @@ GameController::GameController() : map("start") {
   this->paused = true;
   this->redrawn_paused = false;
   this->score = 0;
-  this->draw_map();
+  this->draw_screen();
 }
 
 GameController::~GameController() {
@@ -38,14 +38,14 @@ GameController::~GameController() {
   cout << "\nGAME OVER! \nScore: " << this->score << "\n\n";
 }
 
-void GameController::draw_map() {
-  this->map.draw(this->window, this->score, this->paused);
+void GameController::draw_screen() {
+  this->screen.draw(this->window, this->score, this->paused);
 }
 
 Position GameController::move(Position old_pos, Position new_pos, wchar_t *overwritten_char) {
-  if (this->map.position_valid(new_pos) && old_pos != new_pos) {
-    wchar_t old_pos_cur_char = this->map.get_char(old_pos);
-    wchar_t new_pos_cur_char = this->map.get_char(new_pos);
+  if (this->screen.position_valid(new_pos) && old_pos != new_pos) {
+    wchar_t old_pos_cur_char = this->screen.get_char(old_pos);
+    wchar_t new_pos_cur_char = this->screen.get_char(new_pos);
 
     bool is_pacman = old_pos_cur_char == PACMAN_ICON;
 
@@ -75,8 +75,8 @@ Position GameController::move(Position old_pos, Position new_pos, wchar_t *overw
       return old_pos;
     }
 
-    this->map.update_map(old_pos, old_pos_new_char);
-    this->map.update_map(new_pos, new_pos_new_char);
+    this->screen.update_screen(old_pos, old_pos_new_char);
+    this->screen.update_screen(new_pos, new_pos_new_char);
 
     *overwritten_char = new_pos_cur_char;
     return new_pos;
@@ -96,7 +96,7 @@ void GameController::redraw() {
 
   erase();
   wrefresh(this->window);
-  this->draw_map();
+  this->draw_screen();
 }
 
 void GameController::refresh() { wrefresh(this->window); }
@@ -116,35 +116,35 @@ void GameController::toggle_pause() {
 }
 
 void GameController::start() {
-  this->map = Map("map-01");
+  this->screen = Screen("map-01");
   this->paused = false;
   this->redrawn_paused = false;
-  this->draw_map();
+  this->draw_screen();
 }
 
 WINDOW *GameController::get_window() { return this->window; }
 
 int GameController::get_score() { return this->score; }
 
-bool GameController::won() { return this->score == this->map.get_n_dots(); }
+bool GameController::won() { return this->score == this->screen.get_n_dots(); }
 
 bool GameController::is_paused() { return this->paused; }
 
 bool GameController::direction_blocked(Position pos, Direction dir) {
-  wchar_t character = this->map.get_char(pos.move(dir));
+  wchar_t character = this->screen.get_char(pos.move(dir));
   return character != DOT && character != SPACE;
 }
 
 vector<Position> GameController::get_adjacency_list(Position pos) {
-  return this->map.get_adjacency_list(pos);
+  return this->screen.get_adjacency_list(pos);
 }
 
 vector<Position> GameController::get_ghosts_positions() {
-  return this->map.ghosts_positions;
+  return this->screen.ghosts_positions;
 }
 
 Position GameController::get_pacman_position() {
-  return this->map.pacman_posision;
+  return this->screen.pacman_posision;
 }
 
 /*

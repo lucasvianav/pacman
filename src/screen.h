@@ -1,5 +1,5 @@
-#ifndef MAP_H
-#define MAP_H
+#ifndef SCREEN_H
+#define SCREEN_H
 
 #include "utils.h"
 #include <curses.h>
@@ -8,57 +8,57 @@
 
 using namespace std;
 
-class Map {
+class Screen {
 private:
-  /* Map matrix. */
-  vector<vector<wchar_t>> map;
+  /* Screen matrix. */
+  vector<vector<wchar_t>> screen;
 
-  /* Number of map rows. */
+  /* Number of screen rows. */
   unsigned int n_rows;
 
-  /* Number of map column. */
+  /* Number of screen column. */
   unsigned int n_cols;
 
-  /* Number of points in the map. */
+  /* Number of points in the screen. */
   unsigned int n_dots;
 
   /* Check if given position can be "walked" by a character. */
   bool is_walkable(Position pos);
 
 public:
-  Map(string name);
+  Screen(string name);
 
-  /* Returns the map's matrix. */
-  vector<vector<wchar_t>> get_map();
+  /* Returns the screen's matrix. */
+  vector<vector<wchar_t>> get_screen();
 
   /* Returns the charater at a given position. */
   wchar_t get_char(Position pos);
 
-  /* Getter for number of map rows. */
+  /* Getter for number of screen rows. */
   unsigned int get_n_rows();
 
-  /* Getter for number of map columns. */
+  /* Getter for number of screen columns. */
   unsigned int get_n_cols();
 
-  /* Getter for number of points in the map. */
+  /* Getter for number of points in the screen. */
   unsigned int get_n_dots();
 
   /* Sets the character at a given position to a given value. */
-  void update_map(Position pos, char value);
+  void update_screen(Position pos, char value);
 
-  /* Draws the map to the screen. */
+  /* Draws the screen to the screen. */
   void draw(WINDOW *window, int score, bool paused);
 
-  /* Check if position is within the map's bounds. */
+  /* Check if position is within the screen's bounds. */
   bool position_valid(Position pos);
 
   /* Getter for the adjacency list of a given position. */
   vector<Position> get_adjacency_list(Position pos);
 
-  /* The positions of all ghosts in the map. */
+  /* The positions of all ghosts in the screen. */
   vector<Position> ghosts_positions;
 
-  /* The positions of Pacman in the map. */
+  /* The positions of Pacman in the screen. */
   Position pacman_posision;
 };
 

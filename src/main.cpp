@@ -1,5 +1,5 @@
 #include "controllers.h"
-#include "map.h"
+#include "screen.h"
 #include "utils.h"
 #include <chrono>
 #include <cstdio>
@@ -109,7 +109,7 @@ int main() {
     }
   };
 
-  auto map_refreshing = [&]() {
+  auto screen_refreshing = [&]() {
     auto delay = min(GHOST_DELAY, PACMAN_DELAY);
 
     while (true) {
@@ -143,7 +143,7 @@ int main() {
   thread threads[N_THREADS] = {
       thread(user_input),
       thread(pacman_movement),
-      thread(map_refreshing),
+      thread(screen_refreshing),
       thread(ghosts_movement),
   };
 

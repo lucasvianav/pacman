@@ -1,18 +1,17 @@
 #ifndef CONTROLLERS_H
 #define CONTROLLERS_H
 
-#include "map.h"
+#include "screen.h"
 #include "utils.h"
 #include <iostream>
-#include <map>
 #include <mutex>
 #include <ncurses.h>
 #include <queue>
 
 class GameController {
 private:
-  /* Game map. */
-  Map map;
+  /* Game screen. */
+  Screen screen;
 
   /* Game screen. */
   WINDOW *window;
@@ -26,8 +25,8 @@ private:
   /* Was the game was redrawn while paused? */
   bool redrawn_paused;
 
-  /* Draws the game map to the screen. */
-  void draw_map();
+  /* Draws the game screen to the screen. */
+  void draw_screen();
 
 public:
   GameController();
@@ -43,7 +42,7 @@ public:
    */
   Position move(Position old_pos, Position new_pos, wchar_t *overwritten_char);
 
-  /* Redraw the game's map. */
+  /* Redraw the game's screen. */
   void redraw();
 
   /* Refresh the screen. */

@@ -1,4 +1,4 @@
-#include "map.h"
+#include "screen.h"
 #include "utils.h"
 #include <cstdio>
 #include <curses.h>
@@ -7,7 +7,7 @@
 
 using namespace std;
 
-Map::Map(string name) {
+Screen::Screen(string name) {
   this->n_dots = 0;
 
   ifstream f;
@@ -18,15 +18,15 @@ Map::Map(string name) {
 
   unsigned int x = -1, y = 0;
 
-  this->map.push_back({});
+  this->screen.push_back({});
   while (f) {
     tmp_char = f.get();
 
     if (tmp_char != '\n') {
-      this->map.back().push_back(tmp_char);
+      this->screen.back().push_back(tmp_char);
       x++;
     } else {
-      this->map.push_back({});
+      this->screen.push_back({});
       y++;
       x = -1;
     }
@@ -45,16 +45,16 @@ Map::Map(string name) {
   f.close();
 
   // last element will be an empty row
-  this->map.pop_back();
+  this->screen.pop_back();
 
-  this->n_rows = this->map.size();
-  this->n_cols = this->map.front().size();
+  this->n_rows = this->screen.size();
+  this->n_cols = this->screen.front().size();
 }
 
-void Map::draw(WINDOW *window, int score, bool paused) {
+void Screen::draw(WINDOW *window, int score, bool paused) {
   for (unsigned int i = 0; i < this->n_rows; i++) {
     for (unsigned int j = 0; j < this->n_cols; j++) {
-      waddch(window, this->map[i][j]);
+      waddch(window, this->screen[i][j]);
     }
 
     if (i == 0 && score != -1 && this->n_dots) {
@@ -77,31 +77,31 @@ void Map::draw(WINDOW *window, int score, bool paused) {
   }
 }
 
-vector<vector<wchar_t>> Map::get_map() { return this->map; };
+vector<vector<wchar_t>> Screen::get_screen() { return this->screen; };
 
-wchar_t Map::get_char(Position pos) { return this->map[pos.y][pos.x]; };
+wchar_t Screen::get_char(Position pos) { return this->screen[pos.y][pos.x]; };
 
-unsigned int Map::get_n_rows() { return this->n_rows; };
+unsigned int Screen::get_n_rows() { return this->n_rows; };
 
-unsigned int Map::get_n_cols() { return this->n_cols; };
+unsigned int Screen::get_n_cols() { return this->n_cols; };
 
-unsigned int Map::get_n_dots() { return this->n_dots; };
+unsigned int Screen::get_n_dots() { return this->n_dots; };
 
-void Map::update_map(Position pos, char value) {
-  this->map[pos.y][pos.x] = value;
+void Screen::update_screen(Position pos, char value) {
+  this->screen[pos.y][pos.x] = value;
 }
 
-bool Map::position_valid(Position pos) {
+bool Screen::position_valid(Position pos) {
   return (pos.x >= 0 && pos.x < this->n_cols) &&
          (pos.y >= 0 && pos.y < this->n_rows);
 }
 
-bool Map::is_walkable(Position pos) {
+bool Screen::is_walkable(Position pos) {
   auto c = this->get_char(pos);
   return c == DOT || c == SPACE || c == PACMAN_ICON;
 }
 
-vector<Position> Map::get_adjacency_list(Position pos) {
+vector<Position> Screen::get_adjacency_list(Position pos) {
   vector<Position> adjacencies;
   Position neighbor;
 
