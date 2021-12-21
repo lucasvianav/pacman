@@ -12,6 +12,7 @@ class GameController {
 private:
   mutex paused_mutex;
   mutex score_mutex;
+  mutex game_over_mutex;
 
   /* Game screen being currently displayed. */
   Screen screen;
@@ -24,6 +25,9 @@ private:
 
   /* The player's score points. */
   unsigned int score;
+
+  /* Did the player lose? */
+  bool game_over;
 
   /* Was the game was redrawn while paused? */
   bool redrawn_paused;
@@ -75,6 +79,12 @@ public:
 
   /* Did the player win? */
   bool won();
+
+  /* Is the game over? */
+  bool is_over();
+
+  /* Closes the game. */
+  void quit();
 
   /* Is the game paused? */
   bool is_paused();

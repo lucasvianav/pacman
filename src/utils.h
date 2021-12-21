@@ -40,10 +40,4 @@ public:
   operator std::string();
 };
 
-/* Is the game over? */
-bool should_quit();
-
-/* Closes the game. */
-void quit();
-
 #endif

@@ -29,6 +29,7 @@ GameController::GameController() : screen("start") {
   curs_set(false);
   cbreak();
 
+  this->game_over = false;
   this->paused = true;
   this->redrawn_paused = false;
   this->score = 0;
@@ -37,7 +38,6 @@ GameController::GameController() : screen("start") {
 
 GameController::~GameController() {
   endwin();
-  fflush(stdout);
   cout << "\nGAME OVER! \nScore: " << this->score << "\n\n";
 }
 
@@ -62,7 +62,7 @@ Position GameController::move(Position old_pos, Position new_pos, wchar_t *overw
       }
 
     case PACMAN_ICON:
-      quit();
+      this->quit();
       break;
 
     case DOT:
@@ -123,7 +123,7 @@ void GameController::reset() {
 
 void GameController::toggle_pause() {
   this->paused_mutex.lock();
-  if (!this->won() || should_quit()) {
+  if (!this->is_over()) {
     this->paused = !this->paused;
    this->redrawn_paused = false;
   } else {
@@ -157,6 +157,20 @@ bool GameController::won() {
   this->score_mutex.unlock();
 
   return won;
+}
+
+bool GameController::is_over() {
+  this->game_over_mutex.lock();
+  bool over = this->game_over;
+  this->game_over_mutex.unlock();
+
+  return over || this->won();
+}
+
+void GameController::quit() {
+  this->game_over_mutex.lock();
+  this->game_over = true;
+  this->game_over_mutex.unlock();
 }
 
 bool GameController::is_paused() {

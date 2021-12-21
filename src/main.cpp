@@ -89,7 +89,7 @@ int main() {
 
       pacman.turn(dir);
 
-      if (should_quit() || gc.won()) {
+      if (gc.is_over()) {
         break;
       }
 
@@ -101,7 +101,7 @@ int main() {
     while (true) {
       pacman.move();
 
-      if (should_quit() || gc.won()) {
+      if (gc.is_over()) {
         break;
       }
 
@@ -115,7 +115,7 @@ int main() {
     while (true) {
       gc.redraw_screen_changed();
 
-      if (should_quit() || gc.won()) {
+      if (gc.is_over()) {
         break;
       }
 
@@ -127,7 +127,7 @@ int main() {
     while (true) {
       gc.redraw_screen();
 
-      if (should_quit() || gc.won()) {
+      if (gc.is_over()) {
         break;
       }
 
@@ -146,7 +146,7 @@ int main() {
       clyde.move(pacman_pos);
       pinky.move(pacman_pos);
 
-      if (should_quit() || gc.won()) {
+      if (gc.is_over()) {
         break;
       }
 
