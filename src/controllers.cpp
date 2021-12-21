@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <clocale>
 #include <curses.h>
+#include <ncurses.h>
 #include <iostream>
 #include <stdlib.h>
 #include <vector>
@@ -85,7 +86,7 @@ Position GameController::move(Position old_pos, Position new_pos, wchar_t *overw
   return old_pos;
 }
 
-void GameController::redraw() {
+void GameController::redraw_screen() {
   if (this->paused) {
     if (this->redrawn_paused) {
       return;
@@ -97,6 +98,18 @@ void GameController::redraw() {
   erase();
   wrefresh(this->window);
   this->draw_screen();
+}
+
+void GameController::redraw_screen_changed() {
+  if (this->paused) {
+    if (this->redrawn_paused) {
+      return;
+    } else {
+      this->redrawn_paused =  true;
+    }
+  }
+
+  this->screen.redraw(window, this->score);
 }
 
 void GameController::refresh() { wrefresh(this->window); }
@@ -119,7 +132,7 @@ void GameController::start() {
   this->screen = Screen("map-01");
   this->paused = false;
   this->redrawn_paused = false;
-  this->draw_screen();
+  this->redraw_screen();
 }
 
 WINDOW *GameController::get_window() { return this->window; }

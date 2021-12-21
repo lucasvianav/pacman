@@ -10,7 +10,7 @@
 
 class GameController {
 private:
-  /* Game screen. */
+  /* Game screen being currently displayed. */
   Screen screen;
 
   /* Game screen. */
@@ -32,7 +32,8 @@ public:
   GameController();
   ~GameController();
 
-  /* Move a charater from one position to another.
+  /*
+   * Move a charater from one position to another.
    * @param `old_pos` the target's original position.
    * @param `new_pos` the target's intended position.
    * @param `overwrtten_char` pointer to a variable containing the character
@@ -43,7 +44,13 @@ public:
   Position move(Position old_pos, Position new_pos, wchar_t *overwritten_char);
 
   /* Redraw the game's screen. */
-  void redraw();
+  void redraw_screen();
+
+  /*
+   * Redraw the only the changed parts in the game's screen.
+   * @see https://stackoverflow.com/a/34843392
+   */
+  void redraw_screen_changed();
 
   /* Refresh the screen. */
   void refresh();

@@ -113,7 +113,8 @@ int main() {
     auto delay = min(GHOST_DELAY, PACMAN_DELAY);
 
     while (true) {
-      gc.redraw();
+      /* gc.redraw_screen(); */
+      gc.redraw_screen_changed();
 
       if (should_quit() || gc.won()) {
         break;

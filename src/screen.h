@@ -10,8 +10,11 @@ using namespace std;
 
 class Screen {
 private:
-  /* Screen matrix. */
-  vector<vector<wchar_t>> screen;
+  /* Screen matrix being currently displayed. */
+  vector<vector<wchar_t>> current;
+
+  /* Screen matrix to be displayed in next refresh. */
+  vector<vector<wchar_t>> next;
 
   /* Number of screen rows. */
   unsigned int n_rows;
@@ -22,8 +25,17 @@ private:
   /* Number of points in the screen. */
   unsigned int n_dots;
 
+  /* The player's score points. */
+  unsigned int score;
+
+  /* Margin between the screen and warning on the right. */
+  unsigned int right_margin;
+
   /* Check if given position can be "walked" by a character. */
   bool is_walkable(Position pos);
+
+  /* Prints `right_margin` blankspaces. */
+  void print_right_margin(WINDOW *window);
 
 public:
   Screen(string name);
@@ -46,8 +58,14 @@ public:
   /* Sets the character at a given position to a given value. */
   void set_char(Position pos, char value);
 
-  /* Draws the screen to the screen. */
+  /* Draws the screen to the terminal. */
   void draw(WINDOW *window, int score, bool paused);
+
+  /*
+   * Redraw the only the changed parts in the screen.
+   * @see https://stackoverflow.com/a/34843392
+   */
+  void redraw(WINDOW *window, int score);
 
   /* Check if position is within the screen's bounds. */
   bool position_valid(Position pos);
