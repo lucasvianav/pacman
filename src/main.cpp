@@ -8,7 +8,7 @@
 
 using namespace std;
 
-#define N_THREADS 4
+#define N_THREADS 5
 
 int main() {
   GameController gc;
@@ -97,7 +97,7 @@ int main() {
     }
   };
 
-  auto pacman_movement = [&pacman, &gc, &window]() {
+  auto pacman_movement = [&pacman, &gc]() {
     while (true) {
       pacman.move();
 
@@ -109,11 +109,10 @@ int main() {
     }
   };
 
-  auto screen_refreshing = [&]() {
+  auto screen_redrawing = [&gc]() {
     auto delay = min(GHOST_DELAY, PACMAN_DELAY);
 
     while (true) {
-      /* gc.redraw_screen(); */
       gc.redraw_screen_changed();
 
       if (should_quit() || gc.won()) {
@@ -124,14 +123,28 @@ int main() {
     }
   };
 
+  auto screen_refreshing = [&gc]() {
+    while (true) {
+      gc.redraw_screen();
+
+      if (should_quit() || gc.won()) {
+        break;
+      }
+
+      this_thread::sleep_for(chrono::microseconds(SCREEN_REFRESHING_DELAY));
+    }
+  };
+
   auto ghosts_movement = [&inky, &blinky, &clyde, &pinky, &gc, &pacman]() {
     this_thread::sleep_for(chrono::seconds(1));
 
     while (true) {
-      inky.move(pacman.get_positon());
-      blinky.move(pacman.get_positon());
-      clyde.move(pacman.get_positon());
-      pinky.move(pacman.get_positon());
+      Position pacman_pos = pacman.get_positon();
+
+      inky.move(pacman_pos);
+      blinky.move(pacman_pos);
+      clyde.move(pacman_pos);
+      pinky.move(pacman_pos);
 
       if (should_quit() || gc.won()) {
         break;
@@ -142,9 +155,8 @@ int main() {
   };
 
   thread threads[N_THREADS] = {
-      thread(user_input),
-      thread(pacman_movement),
-      thread(screen_refreshing),
+      thread(user_input),       thread(pacman_movement),
+      thread(screen_redrawing), thread(screen_refreshing),
       thread(ghosts_movement),
   };
 

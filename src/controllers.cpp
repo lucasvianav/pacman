@@ -2,6 +2,7 @@
 #include "utils.h"
 #include <algorithm>
 #include <clocale>
+#include <cstdio>
 #include <curses.h>
 #include <ncurses.h>
 #include <iostream>
@@ -36,6 +37,7 @@ GameController::GameController() : screen("start") {
 
 GameController::~GameController() {
   endwin();
+  fflush(stdout);
   cout << "\nGAME OVER! \nScore: " << this->score << "\n\n";
 }
 
@@ -50,7 +52,7 @@ Position GameController::move(Position old_pos, Position new_pos, wchar_t *overw
 
     bool is_pacman = old_pos_cur_char == PACMAN_ICON;
 
-    wchar_t old_pos_new_char = *overwritten_char;
+    wchar_t old_pos_new_char = overwritten_char ? *overwritten_char : SPACE;
     wchar_t new_pos_new_char = old_pos_cur_char;
 
     switch (new_pos_cur_char) {
@@ -65,7 +67,9 @@ Position GameController::move(Position old_pos, Position new_pos, wchar_t *overw
 
     case DOT:
       if (is_pacman) {
+        this->score_mutex.lock();
         this->score++;
+        this->score_mutex.unlock();
       }
       break;
 
@@ -76,10 +80,13 @@ Position GameController::move(Position old_pos, Position new_pos, wchar_t *overw
       return old_pos;
     }
 
-    this->screen.set_char(old_pos, old_pos_new_char);
-    this->screen.set_char(new_pos, new_pos_new_char);
+    this->screen.set_chars({old_pos, new_pos},
+        {old_pos_new_char, new_pos_new_char});
 
-    *overwritten_char = new_pos_cur_char;
+    if (overwritten_char) {
+      *overwritten_char = new_pos_cur_char;
+    }
+
     return new_pos;
   }
 
@@ -87,29 +94,24 @@ Position GameController::move(Position old_pos, Position new_pos, wchar_t *overw
 }
 
 void GameController::redraw_screen() {
+  this->paused_mutex.lock();
   if (this->paused) {
     if (this->redrawn_paused) {
+      this->paused_mutex.unlock();
       return;
     } else {
-      this->redrawn_paused =  true;
+      this->redrawn_paused = true;
     }
   }
+  this->paused_mutex.unlock();
 
-  erase();
+  werase(this->window);
   wrefresh(this->window);
   this->draw_screen();
 }
 
 void GameController::redraw_screen_changed() {
-  if (this->paused) {
-    if (this->redrawn_paused) {
-      return;
-    } else {
-      this->redrawn_paused =  true;
-    }
-  }
-
-  this->screen.redraw(window, this->score);
+  this->screen.redraw(this->window, this->score);
 }
 
 void GameController::refresh() { wrefresh(this->window); }
@@ -120,12 +122,16 @@ void GameController::reset() {
 }
 
 void GameController::toggle_pause() {
+  this->paused_mutex.lock();
   if (!this->won() || should_quit()) {
     this->paused = !this->paused;
-    this->redrawn_paused = false;
+   this->redrawn_paused = false;
   } else {
     this->paused = false;
   }
+  this->paused_mutex.unlock();
+
+  this->redraw_screen();
 }
 
 void GameController::start() {
@@ -137,11 +143,29 @@ void GameController::start() {
 
 WINDOW *GameController::get_window() { return this->window; }
 
-int GameController::get_score() { return this->score; }
+int GameController::get_score() {
+  this->score_mutex.lock();
+  auto score = this->score;
+  this->score_mutex.unlock();
 
-bool GameController::won() { return this->score == this->screen.get_n_dots(); }
+  return score;
+}
 
-bool GameController::is_paused() { return this->paused; }
+bool GameController::won() {
+  this->score_mutex.lock();
+  bool won = this->score == this->screen.get_n_dots();
+  this->score_mutex.unlock();
+
+  return won;
+}
+
+bool GameController::is_paused() {
+  this->paused_mutex.lock();
+  auto paused = this->paused;
+  this->paused_mutex.unlock();
+
+  return paused;
+}
 
 bool GameController::direction_blocked(Position pos, Direction dir) {
   wchar_t character = this->screen.get_char(pos.move(dir));
@@ -208,7 +232,9 @@ Character::~Character() { std::free(this->pos); }
 
 Pacman::Pacman(GameController *gc)
     : Character(gc, gc->get_pacman_position()) {
+  this->direction_mutex.lock();
   this->direction = RIGHT;
+  this->direction_mutex.unlock();
 }
 
 void Pacman::move() {
@@ -216,10 +242,9 @@ void Pacman::move() {
     return;
   }
 
-  this->m.lock();
-  wchar_t space = SPACE;
-  Character::move(this->direction, &space);
-  this->m.unlock();
+  this->position_mutex.lock();
+  Character::move(this->direction, NULL);
+  this->position_mutex.unlock();
 }
 
 void Pacman::turn(Direction dir) {
@@ -227,16 +252,21 @@ void Pacman::turn(Direction dir) {
     return;
   }
 
+  this->position_mutex.lock();
   bool is_blocked = this->gc->direction_blocked(*this->pos, dir);
+  this->position_mutex.unlock();
+
   if (!is_blocked) {
+    this->direction_mutex.lock();
     this->direction = dir;
+    this->direction_mutex.unlock();
   }
 }
 
 Position Pacman::get_positon() {
-  this->m.lock();
+  this->position_mutex.lock();
   Position pos = *this->pos;
-  this->m.unlock();
+  this->position_mutex.unlock();
 
   return pos;
 }
@@ -264,7 +294,10 @@ void Ghost::move(Position target) {
 
   Position pos = this->find_next_move(target);
   this->last_position = *this->pos;
+
+  this->overwritten_char_mutex.lock();
   Character::move(pos, &this->overwritten_char);
+  this->overwritten_char_mutex.unlock();
 }
 
 Position Ghost::find_next_move(Position target) {

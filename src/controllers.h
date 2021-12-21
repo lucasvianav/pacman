@@ -10,6 +10,9 @@
 
 class GameController {
 private:
+  mutex paused_mutex;
+  mutex score_mutex;
+
   /* Game screen being currently displayed. */
   Screen screen;
 
@@ -110,7 +113,8 @@ public:
 class Pacman : public Character {
 private:
   Direction direction;
-  mutex m;
+  mutex position_mutex;
+  mutex direction_mutex;
 
 public:
   Pacman(GameController *gc);
@@ -127,9 +131,12 @@ public:
 
 class Ghost : public Character {
 private:
+  mutex overwritten_char_mutex;
+
   /* The position the ghost was last in. */
   Position last_position;
 
+  /* The previous char from the position the ghost is currently in. */
   wchar_t overwritten_char;
 
   /* Find out where the ghost should go next. */

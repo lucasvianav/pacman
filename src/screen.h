@@ -3,6 +3,7 @@
 
 #include "utils.h"
 #include <curses.h>
+#include <mutex>
 #include <string>
 #include <vector>
 
@@ -10,6 +11,10 @@ using namespace std;
 
 class Screen {
 private:
+  mutex *current_mutex;
+  mutex *next_mutex;
+  mutex *score_mutex;
+
   /* Screen matrix being currently displayed. */
   vector<vector<wchar_t>> current;
 
@@ -40,9 +45,6 @@ private:
 public:
   Screen(string name);
 
-  /* Returns the screen's matrix. */
-  vector<vector<wchar_t>> get_screen();
-
   /* Returns the charater at a given position. */
   wchar_t get_char(Position pos);
 
@@ -56,7 +58,10 @@ public:
   unsigned int get_n_dots();
 
   /* Sets the character at a given position to a given value. */
-  void set_char(Position pos, char value);
+  void set_char(Position pos, wchar_t value);
+
+  /* Sets the characters at multiple positions to the given values. */
+  void set_chars(vector<Position> positions, vector<wchar_t> values);
 
   /* Draws the screen to the terminal. */
   void draw(WINDOW *window, int score, bool paused);

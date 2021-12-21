@@ -8,6 +8,10 @@
 using namespace std;
 
 Screen::Screen(string name) {
+  this->current_mutex = new mutex();
+  this->next_mutex = new mutex();
+  this->score_mutex = new mutex();
+
   this->n_dots = 0;
   this->right_margin = 7;
   this->score = -1;
@@ -64,10 +68,15 @@ void Screen::print_right_margin(WINDOW *window) {
 }
 
 void Screen::draw(WINDOW *window, int score, bool paused) {
+  this->next_mutex->lock();
+  this->score_mutex->lock();
+  this->current_mutex->lock();
+
   this->score = score;
 
   for (unsigned int i = 0; i < this->n_rows; i++) {
     for (unsigned int j = 0; j < this->n_cols; j++) {
+      this->current[i][j] = this->next[i][j];
       waddch(window, this->next[i][j]);
     }
 
@@ -89,9 +98,17 @@ void Screen::draw(WINDOW *window, int score, bool paused) {
 
     waddch(window, '\n');
   }
+
+  this->current_mutex->unlock();
+  this->score_mutex->unlock();
+  this->next_mutex->unlock();
+
+  fflush(stdout);
 }
 
 void Screen::redraw(WINDOW *window, int score) {
+  this->next_mutex->lock();
+  this->current_mutex->lock();
   for (unsigned int i = 0; i < this->n_rows; i++) {
     for (unsigned int j = 0; j < this->n_cols; j++) {
       if (this->current[i][j] == this->next[i][j]) {
@@ -102,8 +119,11 @@ void Screen::redraw(WINDOW *window, int score) {
       }
     }
   }
+  this->current_mutex->unlock();
+  this->next_mutex->unlock();
 
-  // only update scroe if it also changed
+  // only update score if it also changed
+  this->score_mutex->lock();
   if (score != (int)this->score) {
     this->score = score;
 
@@ -116,11 +136,18 @@ void Screen::redraw(WINDOW *window, int score) {
       attroff(A_UNDERLINE);
     }
   }
+  this->score_mutex->unlock();
+
+  fflush(stdout);
 }
 
-vector<vector<wchar_t>> Screen::get_screen() { return this->current; };
+wchar_t Screen::get_char(Position pos) {
+  this->next_mutex->lock();
+  wchar_t c = this->next[pos.y][pos.x];
+  this->next_mutex->unlock();
 
-wchar_t Screen::get_char(Position pos) { return this->next[pos.y][pos.x]; };
+  return c;
+};
 
 unsigned int Screen::get_n_rows() { return this->n_rows; };
 
@@ -128,8 +155,23 @@ unsigned int Screen::get_n_cols() { return this->n_cols; };
 
 unsigned int Screen::get_n_dots() { return this->n_dots; };
 
-void Screen::set_char(Position pos, char value) {
+void Screen::set_char(Position pos, wchar_t value) {
+  this->next_mutex->lock();
   this->next[pos.y][pos.x] = value;
+  this->next_mutex->unlock();
+}
+
+void Screen::set_chars(vector<Position> positions, vector<wchar_t> values) {
+  int size = positions.size();
+  if (size != (int)values.size()) {
+    return;
+  }
+
+  this->next_mutex->lock();
+  for (int i = 0; i < size; i++) {
+    this->next[positions[i].y][positions[i].x] = values[i];
+  }
+  this->next_mutex->unlock();
 }
 
 bool Screen::position_valid(Position pos) {
