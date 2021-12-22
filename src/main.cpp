@@ -3,6 +3,7 @@
 #include "utils.h"
 #include <chrono>
 #include <cstdio>
+#include <curses.h>
 #include <thread>
 #include <unistd.h>
 
@@ -12,20 +13,15 @@ using namespace std;
 
 int main() {
   GameController gc;
-  WINDOW *window = gc.get_window();
-
   int pressed_key;
-  while (true) {
-    pressed_key = wgetch(window);
 
-    // <Enter> key
-    if (pressed_key == '\n') {
-      gc.start();
-      break;
-    }
-
+  // until <Enter> key is pressed
+  while (pressed_key != '\n') {
+    pressed_key = getch();
     usleep(INPUT_DELAY);
   }
+
+  gc.start();
 
   // characters
   Pacman pacman{&gc};
@@ -35,7 +31,8 @@ int main() {
   Ghost clyde{&gc, RANDOM, ghosts_positions[2]};
   Ghost pinky{&gc, BEST, ghosts_positions[3]};
 
-  auto user_input = [&pacman, &gc, &window]() {
+  // receive user input
+  auto user_input = [&pacman, &gc]() {
     Direction dir;
     int pressed_key;
 
@@ -45,8 +42,8 @@ int main() {
      * ↑ ← ↓ →
      */
 
-    while (true) {
-      pressed_key = wgetch(window);
+    while (!gc.is_over()) {
+      pressed_key = getch();
 
       // <Enter> key
       if (pressed_key == '\n') {
@@ -89,52 +86,40 @@ int main() {
 
       pacman.turn(dir);
 
-      if (should_quit() || gc.won()) {
-        break;
-      }
-
       this_thread::sleep_for(chrono::microseconds(INPUT_DELAY));
     }
   };
 
-  auto pacman_movement = [&pacman, &gc, &window]() {
-    while (true) {
+  // move pacman
+  auto pacman_movement = [&pacman, &gc]() {
+    while (!gc.is_over()) {
       pacman.move();
-
-      if (should_quit() || gc.won()) {
-        break;
-      }
-
       this_thread::sleep_for(chrono::microseconds(PACMAN_DELAY));
     }
   };
 
-  auto screen_refreshing = [&]() {
+  // redraw the screen everytime a character moves
+  auto screen_refreshing = [&gc]() {
     auto delay = min(GHOST_DELAY, PACMAN_DELAY);
 
-    while (true) {
-      gc.redraw();
-
-      if (should_quit() || gc.won()) {
-        break;
-      }
-
+    while (!gc.is_over()) {
+      gc.draw_screen();
       this_thread::sleep_for(chrono::microseconds(delay));
     }
   };
 
+  // move ghosts
   auto ghosts_movement = [&inky, &blinky, &clyde, &pinky, &gc, &pacman]() {
     this_thread::sleep_for(chrono::seconds(1));
+    Position pacman_pos;
 
-    while (true) {
-      inky.move(pacman.get_positon());
-      blinky.move(pacman.get_positon());
-      clyde.move(pacman.get_positon());
-      pinky.move(pacman.get_positon());
+    while (!gc.is_over()) {
+      pacman_pos = pacman.get_positon();
 
-      if (should_quit() || gc.won()) {
-        break;
-      }
+      inky.move(pacman_pos);
+      blinky.move(pacman_pos);
+      clyde.move(pacman_pos);
+      pinky.move(pacman_pos);
 
       this_thread::sleep_for(chrono::microseconds(GHOST_DELAY));
     }

@@ -16,10 +16,11 @@
 |                 Controls:                 |
 |            w a s d --- movement           |
 |            k h j l --- movement           |
-|          /\ < \/ > --- movement           |
+|            ^ < v > --- movement           |
 |            <Enter> --- play/pause         |
 |                                           |
-|                                           |
-|      Press <ENTER> to start the game      |
+|    +---------------------------------+    |
+|    | Press <ENTER> to start the game |    |
+|    +---------------------------------+    |
 |                                           |
 +-------------------------------------------+

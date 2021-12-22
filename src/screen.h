@@ -3,6 +3,7 @@
 
 #include "utils.h"
 #include <curses.h>
+#include <mutex>
 #include <string>
 #include <vector>
 
@@ -10,8 +11,15 @@ using namespace std;
 
 class Screen {
 private:
-  /* Screen matrix. */
-  vector<vector<wchar_t>> screen;
+  mutex *current_mutex;
+  mutex *next_mutex;
+  mutex *score_mutex;
+
+  /* Screen matrix being currently displayed. */
+  vector<vector<char>> current;
+
+  /* Screen matrix to be displayed in next refresh. */
+  vector<vector<char>> next;
 
   /* Number of screen rows. */
   unsigned int n_rows;
@@ -22,17 +30,20 @@ private:
   /* Number of points in the screen. */
   unsigned int n_dots;
 
-  /* Check if given position can be "walked" by a character. */
-  bool is_walkable(Position pos);
+  /* The player's score points. */
+  unsigned int score;
+
+  /* Margin between the screen and warning on the right. */
+  unsigned int right_margin;
+
+  /* Prints `right_margin` blankspaces. */
+  void print_right_margin();
 
 public:
   Screen(string name);
 
-  /* Returns the screen's matrix. */
-  vector<vector<wchar_t>> get_screen();
-
   /* Returns the charater at a given position. */
-  wchar_t get_char(Position pos);
+  char get_char(Position pos);
 
   /* Getter for number of screen rows. */
   unsigned int get_n_rows();
@@ -44,13 +55,25 @@ public:
   unsigned int get_n_dots();
 
   /* Sets the character at a given position to a given value. */
-  void update_screen(Position pos, char value);
+  void set_char(Position pos, char value);
 
-  /* Draws the screen to the screen. */
-  void draw(WINDOW *window, int score, bool paused);
+  /* Sets the characters at multiple positions to the given values. */
+  void set_chars(vector<Position> positions, vector<char> values);
+
+  /* Draws the screen to the terminal. */
+  void draw(int score, bool paused);
+
+  /*
+   * Redraw the only the changed parts in the screen.
+   * @see https://stackoverflow.com/a/34843392
+   */
+  void redraw(int score);
 
   /* Check if position is within the screen's bounds. */
   bool position_valid(Position pos);
+
+  /* Check if given position can be "walked" by a character. */
+  bool is_walkable(Position pos);
 
   /* Getter for the adjacency list of a given position. */
   vector<Position> get_adjacency_list(Position pos);
