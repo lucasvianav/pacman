@@ -182,8 +182,7 @@ bool GameController::is_paused() {
 }
 
 bool GameController::direction_blocked(Position pos, Direction dir) {
-  char character = this->screen.get_char(pos.move(dir));
-  return character != DOT && character != SPACE;
+  return !this->screen.is_walkable(pos.move(dir));
 }
 
 vector<Position> GameController::get_adjacency_list(Position pos) {

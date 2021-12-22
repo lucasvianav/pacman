@@ -9,7 +9,7 @@
 
 using namespace std;
 
-#define N_THREADS 5
+#define N_THREADS 4
 
 int main() {
   GameController gc;
@@ -98,21 +98,13 @@ int main() {
     }
   };
 
-  // redraw only chaged positions everytime a character moves
-  auto screen_redrawing = [&gc]() {
+  // redraw the screen everytime a character moves
+  auto screen_refreshing = [&gc]() {
     auto delay = min(GHOST_DELAY, PACMAN_DELAY);
 
     while (!gc.is_over()) {
-      this_thread::sleep_for(chrono::microseconds(delay));
-      gc.redraw_screen();
-    }
-  };
-
-  // refresh the whole screen from time to time
-  auto screen_refreshing = [&gc]() {
-    while (!gc.is_over()) {
-      this_thread::sleep_for(chrono::microseconds(SCREEN_REFRESHING_DELAY));
       gc.draw_screen();
+      this_thread::sleep_for(chrono::microseconds(delay));
     }
   };
 
@@ -134,8 +126,9 @@ int main() {
   };
 
   thread threads[N_THREADS] = {
-      thread(user_input),       thread(pacman_movement),
-      thread(screen_redrawing), thread(screen_refreshing),
+      thread(user_input),
+      thread(pacman_movement),
+      thread(screen_refreshing),
       thread(ghosts_movement),
   };
 

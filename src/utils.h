@@ -12,7 +12,6 @@
 #define GHOST_DELAY 300000
 #define INPUT_DELAY 10
 #define PACMAN_DELAY 120000
-#define SCREEN_REFRESHING_DELAY 300000
 
 /* UP = 0, DOWN = 1, LEFT = 2, RIGHT = 3 */
 enum Direction { UP = 0, DOWN = 1, LEFT = 2, RIGHT = 3 };
