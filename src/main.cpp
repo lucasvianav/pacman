@@ -26,10 +26,10 @@ int main() {
   // characters
   Pacman pacman{&gc};
   auto ghosts_positions = gc.get_ghosts_positions();
-  Ghost inky{&gc, BREADTH, ghosts_positions[0]};
-  Ghost blinky{&gc, DEPTH, ghosts_positions[1]};
-  Ghost clyde{&gc, RANDOM, ghosts_positions[2]};
-  Ghost pinky{&gc, BEST, ghosts_positions[3]};
+  Ghost inky{&gc, AI::BREADTH, ghosts_positions[0]};
+  Ghost blinky{&gc, AI::DEPTH, ghosts_positions[1]};
+  Ghost clyde{&gc, AI::RANDOM, ghosts_positions[2]};
+  Ghost pinky{&gc, AI::BEST, ghosts_positions[3]};
 
   // receive user input
   auto user_input = [&pacman, &gc]() {
@@ -114,7 +114,7 @@ int main() {
     Position pacman_pos;
 
     while (!gc.is_over()) {
-      pacman_pos = pacman.get_positon();
+      pacman_pos = pacman.get_position();
 
       inky.move(pacman_pos);
       blinky.move(pacman_pos);

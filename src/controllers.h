@@ -10,6 +10,7 @@
 
 class GameController {
 private:
+  // semaphores
   mutex paused_mutex;
   mutex score_mutex;
   mutex game_over_mutex;
@@ -49,12 +50,6 @@ public:
 
   /* Draws the game screen to the terminal. */
   void draw_screen();
-
-  /*
-   * Redraw the only the changed parts in the game's screen.
-   * @see https://stackoverflow.com/a/34843392
-   */
-  void redraw_screen();
 
   /* Reset the screen. */
   void reset_screen();
@@ -116,7 +111,10 @@ public:
 
 class Pacman : public Character {
 private:
+  /* Direction Pacman is headed. */
   Direction direction;
+
+  // semaphores
   mutex position_mutex;
   mutex direction_mutex;
 
@@ -130,11 +128,12 @@ public:
   void move();
 
   /* Getter for Pacman's position. */
-  Position get_positon();
+  Position get_position();
 };
 
 class Ghost : public Character {
 private:
+  // semaphore
   mutex overwritten_char_mutex;
 
   /* The position the ghost was last in. */

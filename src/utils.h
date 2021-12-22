@@ -4,11 +4,13 @@
 #include <string>
 #include <vector>
 
+// icons
 #define DOT '.'
 #define GHOST_ICON '%'
 #define PACMAN_ICON '@'
 #define SPACE ' '
 
+// delays
 #define GHOST_DELAY 300000
 #define INPUT_DELAY 10
 #define PACMAN_DELAY 120000
@@ -16,8 +18,8 @@
 /* UP = 0, DOWN = 1, LEFT = 2, RIGHT = 3 */
 enum Direction { UP = 0, DOWN = 1, LEFT = 2, RIGHT = 3 };
 
-/* Artificial Intelligence type for a ghost.j */
-enum AI { DEPTH, BREADTH, BEST, RANDOM };
+/* Artificial Intelligence type for a ghost. */
+enum class AI { DEPTH, BREADTH, BEST, RANDOM };
 
 struct Position {
 public:

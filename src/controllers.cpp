@@ -40,7 +40,10 @@ GameController::GameController() : screen("start") {
 GameController::~GameController() {
   delwin(this->window);
   endwin();
-  cout << "\nGAME OVER! \nScore: " << this->score << "\n\n";
+  cout
+    << "\n"
+    << (this->score == this->screen.get_n_dots() ? "YOU WIN!" : "GAME OVER!")
+    << " \nScore: " << this->score << "\n\n";
 }
 
 Position GameController::move(Position old_pos, Position new_pos, char *overwritten_char) {
@@ -107,10 +110,6 @@ void GameController::draw_screen() {
   this->paused_mutex.unlock();
 
   this->screen.draw(this->score, this->paused);
-}
-
-void GameController::redraw_screen() {
-  this->screen.redraw(this->score);
 }
 
 void GameController::reset_screen() {
@@ -276,7 +275,7 @@ void Pacman::turn(Direction dir) {
   }
 }
 
-Position Pacman::get_positon() {
+Position Pacman::get_position() {
   this->position_mutex.lock();
   Position pos = *this->pos;
   this->position_mutex.unlock();
@@ -314,7 +313,7 @@ void Ghost::move(Position target) {
 }
 
 Position Ghost::find_next_move(Position target) {
-  if (type != RANDOM) {
+  if (type != AI::RANDOM) {
     // list of all paths to be analyzed (the next node to
     // be visited is the last one on each path)
     vector<vector<Position>> backlog;
@@ -329,14 +328,14 @@ Position Ghost::find_next_move(Position target) {
     // list of the euclidian distances between all nodes in the
     // backlog and the target (only used for Best First Searches)
     vector<double> distances;
-    if (this->type == BEST) {
+    if (this->type == AI::BEST) {
       distances.push_back(target - *this->pos);
     }
 
     while (!backlog.empty()) {
       // if it's performing a Best First Search, select the node that's closest to the
       // target (aka the node at the same index as the lowest value in distances)
-      if (this->type == BEST) {
+      if (this->type == AI::BEST) {
         auto lowest_distance = min_element(distances.begin(), distances.end());
         int selected_index = distance(distances.begin(), lowest_distance);
 
@@ -344,7 +343,7 @@ Position Ghost::find_next_move(Position target) {
 
         backlog.erase(backlog.begin() + selected_index);
         distances.erase(distances.begin() + selected_index);
-      } else if (this->type == DEPTH) { // DFS: LIFO
+      } else if (this->type == AI::DEPTH) { // DFS: LIFO
         path = backlog.back();
         backlog.pop_back();
       } else { // BFS: FIFO

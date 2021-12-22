@@ -11,15 +11,12 @@ using namespace std;
 
 class Screen {
 private:
-  mutex *current_mutex;
-  mutex *next_mutex;
+  // semaphores
+  mutex *matrix_mutex;
   mutex *score_mutex;
 
-  /* Screen matrix being currently displayed. */
-  vector<vector<char>> current;
-
-  /* Screen matrix to be displayed in next refresh. */
-  vector<vector<char>> next;
+  /* Screen matrix. */
+  vector<vector<char>> matrix;
 
   /* Number of screen rows. */
   unsigned int n_rows;
@@ -29,6 +26,9 @@ private:
 
   /* Number of points in the screen. */
   unsigned int n_dots;
+
+  /* If the running terminal emulator supports colors. */
+  bool colors;
 
   /* The player's score points. */
   unsigned int score;
@@ -62,12 +62,6 @@ public:
 
   /* Draws the screen to the terminal. */
   void draw(int score, bool paused);
-
-  /*
-   * Redraw the only the changed parts in the screen.
-   * @see https://stackoverflow.com/a/34843392
-   */
-  void redraw(int score);
 
   /* Check if position is within the screen's bounds. */
   bool position_valid(Position pos);
