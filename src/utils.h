@@ -13,7 +13,7 @@
 // delays
 #define GHOST_DELAY 300000
 #define INPUT_DELAY 10
-#define PACMAN_DELAY 99000
+#define PACMAN_DELAY 120000
 
 /* UP = 0, DOWN = 1, LEFT = 2, RIGHT = 3 */
 enum Direction { UP = 0, DOWN = 1, LEFT = 2, RIGHT = 3 };
@@ -40,11 +40,5 @@ public:
   Position &operator=(const Position &p);
   operator std::string();
 };
-
-/* Is the game over? */
-bool should_quit();
-
-/* Closes the game. */
-void quit();
 
 #endif
