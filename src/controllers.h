@@ -32,9 +32,6 @@ private:
   /* Was the game was redrawn while paused? */
   bool redrawn_paused;
 
-  /* Draws the game screen to the screen. */
-  void draw_screen();
-
 public:
   GameController();
   ~GameController();
@@ -48,22 +45,19 @@ public:
    * `new_pos`.
    * @return the target's current position (after the move).
    */
-  Position move(Position old_pos, Position new_pos, wchar_t *overwritten_char);
+  Position move(Position old_pos, Position new_pos, char *overwritten_char);
 
-  /* Redraw the game's screen. */
-  void redraw_screen();
+  /* Draws the game screen to the terminal. */
+  void draw_screen();
 
   /*
    * Redraw the only the changed parts in the game's screen.
    * @see https://stackoverflow.com/a/34843392
    */
-  void redraw_screen_changed();
-
-  /* Refresh the screen. */
-  void refresh();
+  void redraw_screen();
 
   /* Reset the screen. */
-  void reset();
+  void reset_screen();
 
   /* Play/pause the game. */
   void toggle_pause();
@@ -114,10 +108,10 @@ public:
   ~Character();
 
   /* Move the charater one position in the given direction. */
-  void move(Direction direction, wchar_t *overwritten_char);
+  void move(Direction direction, char *overwritten_char);
 
   /* Move the charater to the given position. */
-  void move(Position intended_pos, wchar_t *overwritten_char);
+  void move(Position intended_pos, char *overwritten_char);
 };
 
 class Pacman : public Character {
@@ -147,7 +141,7 @@ private:
   Position last_position;
 
   /* The previous char from the position the ghost is currently in. */
-  wchar_t overwritten_char;
+  char overwritten_char;
 
   /* Find out where the ghost should go next. */
   Position find_next_move(Position pacman_pos);

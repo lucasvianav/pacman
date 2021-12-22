@@ -23,6 +23,7 @@ GameController::GameController() : screen("start") {
   // initializes ncurses
   setlocale(LC_ALL, "");
   this->window = initscr();
+
   keypad(this->window, true);
   nodelay(this->window, true);
   noecho();
@@ -30,35 +31,35 @@ GameController::GameController() : screen("start") {
   cbreak();
 
   this->game_over = false;
+  this->score = 0;
   this->paused = true;
   this->redrawn_paused = false;
-  this->score = 0;
   this->draw_screen();
 }
 
 GameController::~GameController() {
+  delwin(this->window);
   endwin();
   cout << "\nGAME OVER! \nScore: " << this->score << "\n\n";
 }
 
-void GameController::draw_screen() {
-  this->screen.draw(this->window, this->score, this->paused);
-}
-
-Position GameController::move(Position old_pos, Position new_pos, wchar_t *overwritten_char) {
+Position GameController::move(Position old_pos, Position new_pos, char *overwritten_char) {
   if (this->screen.position_valid(new_pos) && old_pos != new_pos) {
-    wchar_t old_pos_cur_char = this->screen.get_char(old_pos);
-    wchar_t new_pos_cur_char = this->screen.get_char(new_pos);
+    char old_pos_cur_char = this->screen.get_char(old_pos);
+    char new_pos_cur_char = this->screen.get_char(new_pos);
 
     bool is_pacman = old_pos_cur_char == PACMAN_ICON;
 
-    wchar_t old_pos_new_char = overwritten_char ? *overwritten_char : SPACE;
-    wchar_t new_pos_new_char = old_pos_cur_char;
+    char old_pos_new_char = overwritten_char ? *overwritten_char : SPACE;
+    char new_pos_new_char = old_pos_cur_char;
 
     switch (new_pos_cur_char) {
     case GHOST_ICON:
       if (!is_pacman) {
         return old_pos;
+      } else {
+        this->quit();
+        break;
       }
 
     case PACMAN_ICON:
@@ -93,7 +94,7 @@ Position GameController::move(Position old_pos, Position new_pos, wchar_t *overw
   return old_pos;
 }
 
-void GameController::redraw_screen() {
+void GameController::draw_screen() {
   this->paused_mutex.lock();
   if (this->paused) {
     if (this->redrawn_paused) {
@@ -105,19 +106,15 @@ void GameController::redraw_screen() {
   }
   this->paused_mutex.unlock();
 
+  this->screen.draw(this->score, this->paused);
+}
+
+void GameController::redraw_screen() {
+  this->screen.redraw(this->score);
+}
+
+void GameController::reset_screen() {
   werase(this->window);
-  wrefresh(this->window);
-  this->draw_screen();
-}
-
-void GameController::redraw_screen_changed() {
-  this->screen.redraw(this->window, this->score);
-}
-
-void GameController::refresh() { wrefresh(this->window); }
-
-void GameController::reset() {
-  erase();
   wrefresh(this->window);
 }
 
@@ -131,14 +128,17 @@ void GameController::toggle_pause() {
   }
   this->paused_mutex.unlock();
 
-  this->redraw_screen();
+  this->reset_screen();
+  this->draw_screen();
 }
 
 void GameController::start() {
   this->screen = Screen("map-01");
   this->paused = false;
   this->redrawn_paused = false;
-  this->redraw_screen();
+
+  this->reset_screen();
+  this->draw_screen();
 }
 
 WINDOW *GameController::get_window() { return this->window; }
@@ -153,7 +153,7 @@ int GameController::get_score() {
 
 bool GameController::won() {
   this->score_mutex.lock();
-  bool won = this->score == this->screen.get_n_dots();
+  bool won = this->score > 0 && this->score == this->screen.get_n_dots();
   this->score_mutex.unlock();
 
   return won;
@@ -182,7 +182,7 @@ bool GameController::is_paused() {
 }
 
 bool GameController::direction_blocked(Position pos, Direction dir) {
-  wchar_t character = this->screen.get_char(pos.move(dir));
+  char character = this->screen.get_char(pos.move(dir));
   return character != DOT && character != SPACE;
 }
 
@@ -213,7 +213,7 @@ Character::Character(GameController *gc, Position pos) {
   this->pos->y = pos.y;
 }
 
-void Character::move(Direction direction, wchar_t *overwritten_char) {
+void Character::move(Direction direction, char *overwritten_char) {
   Position intended_pos = (*this->pos);
   intended_pos.move(direction);
 
@@ -225,7 +225,7 @@ void Character::move(Direction direction, wchar_t *overwritten_char) {
   }
 }
 
-void Character::move(Position intended_pos, wchar_t *overwritten_char) {
+void Character::move(Position intended_pos, char *overwritten_char) {
   Position new_pos = gc->move(*this->pos, intended_pos, overwritten_char);
 
   if (new_pos != *this->pos) {

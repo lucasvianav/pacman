@@ -16,10 +16,10 @@ private:
   mutex *score_mutex;
 
   /* Screen matrix being currently displayed. */
-  vector<vector<wchar_t>> current;
+  vector<vector<char>> current;
 
   /* Screen matrix to be displayed in next refresh. */
-  vector<vector<wchar_t>> next;
+  vector<vector<char>> next;
 
   /* Number of screen rows. */
   unsigned int n_rows;
@@ -36,17 +36,14 @@ private:
   /* Margin between the screen and warning on the right. */
   unsigned int right_margin;
 
-  /* Check if given position can be "walked" by a character. */
-  bool is_walkable(Position pos);
-
   /* Prints `right_margin` blankspaces. */
-  void print_right_margin(WINDOW *window);
+  void print_right_margin();
 
 public:
   Screen(string name);
 
   /* Returns the charater at a given position. */
-  wchar_t get_char(Position pos);
+  char get_char(Position pos);
 
   /* Getter for number of screen rows. */
   unsigned int get_n_rows();
@@ -58,22 +55,25 @@ public:
   unsigned int get_n_dots();
 
   /* Sets the character at a given position to a given value. */
-  void set_char(Position pos, wchar_t value);
+  void set_char(Position pos, char value);
 
   /* Sets the characters at multiple positions to the given values. */
-  void set_chars(vector<Position> positions, vector<wchar_t> values);
+  void set_chars(vector<Position> positions, vector<char> values);
 
   /* Draws the screen to the terminal. */
-  void draw(WINDOW *window, int score, bool paused);
+  void draw(int score, bool paused);
 
   /*
    * Redraw the only the changed parts in the screen.
    * @see https://stackoverflow.com/a/34843392
    */
-  void redraw(WINDOW *window, int score);
+  void redraw(int score);
 
   /* Check if position is within the screen's bounds. */
   bool position_valid(Position pos);
+
+  /* Check if given position can be "walked" by a character. */
+  bool is_walkable(Position pos);
 
   /* Getter for the adjacency list of a given position. */
   vector<Position> get_adjacency_list(Position pos);
