@@ -40,10 +40,6 @@ GameController::GameController() : screen("start") {
 GameController::~GameController() {
   delwin(this->window);
   endwin();
-  cout
-    << "\n"
-    << (this->score == this->screen.get_n_dots() ? "YOU WIN!" : "GAME OVER!")
-    << " \nScore: " << this->score << "\n\n";
 }
 
 Position GameController::move(Position old_pos, Position new_pos, char *overwritten_char) {
@@ -170,6 +166,15 @@ void GameController::quit() {
   this->game_over_mutex.lock();
   this->game_over = true;
   this->game_over_mutex.unlock();
+
+  if (this->won()) {
+    this->screen = Screen("you-win");
+  } else {
+    this->screen = Screen("game-over");
+  }
+
+  this->reset_screen();
+  this->draw_screen();
 }
 
 bool GameController::is_paused() {
