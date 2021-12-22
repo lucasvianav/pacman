@@ -83,8 +83,27 @@ void Screen::draw(int score, bool paused) {
 
   this->score = score;
 
+  if (this->colors) {
+    bkgd(STANDARD_COLORS);
+    bkgdset(STANDARD_COLORS);
+  }
+
   for (unsigned int i = 0; i < this->n_rows; i++) {
     for (unsigned int j = 0; j < this->n_cols; j++) {
+      if (score >= 0 && j + 2 < this->n_cols && matrix[i][j] == 's' &&
+          matrix[i][j + 1] == 'c' && matrix[i][j + 2] == 'o') {
+
+        char score_str[4];
+        sprintf(score_str, "%03d", score);
+
+        attron(A_BOLD | A_UNDERLINE);
+        mvaddstr(i, j, score_str);
+        attroff(A_BOLD | A_UNDERLINE);
+
+        j += 2;
+        continue;
+      }
+
       if (this->colors) {
         switch (matrix[i][j]) {
         case GHOST_ICON:

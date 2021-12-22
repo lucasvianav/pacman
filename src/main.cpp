@@ -32,9 +32,8 @@ int main() {
   Ghost pinky{&gc, AI::BEST, ghosts_positions[3]};
 
   // receive user input
-  auto user_input = [&pacman, &gc]() {
+  auto user_input = [&pacman, &gc, &pressed_key]() {
     Direction dir;
-    int pressed_key;
 
     /* allowed key sets:
      * w a s d
@@ -134,6 +133,13 @@ int main() {
 
   for (int i = 0; i < N_THREADS; i++) {
     threads[i].join();
+  }
+
+  // until <Enter> key is pressed
+  pressed_key = -1;
+  while (pressed_key != '\n') {
+    pressed_key = getch();
+    usleep(INPUT_DELAY);
   }
 
   return 0;
