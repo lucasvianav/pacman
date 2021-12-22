@@ -112,10 +112,6 @@ void GameController::draw_screen() {
   this->screen.draw(this->score, this->paused);
 }
 
-void GameController::redraw_screen() {
-  this->screen.redraw(this->score);
-}
-
 void GameController::reset_screen() {
   werase(this->window);
   wrefresh(this->window);

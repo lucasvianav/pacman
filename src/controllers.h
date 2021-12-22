@@ -50,12 +50,6 @@ public:
   /* Draws the game screen to the terminal. */
   void draw_screen();
 
-  /*
-   * Redraw the only the changed parts in the game's screen.
-   * @see https://stackoverflow.com/a/34843392
-   */
-  void redraw_screen();
-
   /* Reset the screen. */
   void reset_screen();
 

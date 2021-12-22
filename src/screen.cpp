@@ -13,8 +13,7 @@
 using namespace std;
 
 Screen::Screen(string name) {
-  this->current_mutex = new mutex();
-  this->next_mutex = new mutex();
+  this->matrix_mutex = new mutex();
   this->score_mutex = new mutex();
 
   this->n_dots = 0;
@@ -39,18 +38,15 @@ Screen::Screen(string name) {
 
   unsigned int x = -1, y = 0;
 
-  this->current.push_back({});
-  this->next.push_back({});
+  this->matrix.push_back({});
   while (f) {
     tmp_char = f.get();
 
     if (tmp_char != '\n') {
-      this->current.back().push_back(tmp_char);
-      this->next.back().push_back(tmp_char);
+      this->matrix.back().push_back(tmp_char);
       x++;
     } else {
-      this->current.push_back({});
-      this->next.push_back({});
+      this->matrix.push_back({});
       y++;
       x = -1;
     }
@@ -69,11 +65,10 @@ Screen::Screen(string name) {
   f.close();
 
   // last element will be an empty row
-  this->current.pop_back();
-  this->next.pop_back();
+  this->matrix.pop_back();
 
-  this->n_rows = this->current.size();
-  this->n_cols = this->current.front().size();
+  this->n_rows = this->matrix.size();
+  this->n_cols = this->matrix.front().size();
 }
 
 void Screen::print_right_margin() {
@@ -83,45 +78,44 @@ void Screen::print_right_margin() {
 }
 
 void Screen::draw(int score, bool paused) {
-  this->next_mutex->lock();
+  this->matrix_mutex->lock();
   this->score_mutex->lock();
-  this->current_mutex->lock();
 
   this->score = score;
 
   for (unsigned int i = 0; i < this->n_rows; i++) {
     for (unsigned int j = 0; j < this->n_cols; j++) {
-      this->current[i][j] = this->next[i][j];
-
       if (this->colors) {
-        switch (next[i][j]) {
+        switch (matrix[i][j]) {
         case GHOST_ICON:
           mvaddch(i, j,
-                  this->next[i][j] | A_BOLD | A_STANDOUT |
+                  this->matrix[i][j] | A_BOLD | A_STANDOUT |
                       COLOR_PAIR(GHOST_COLORS));
           break;
         case PACMAN_ICON:
-          mvaddch(i, j, this->next[i][j] | A_BOLD | COLOR_PAIR(PACMAN_COLORS));
+          mvaddch(i, j,
+                  this->matrix[i][j] | A_BOLD | COLOR_PAIR(PACMAN_COLORS));
           break;
         case DOT:
-          mvaddch(i, j, this->next[i][j] | A_DIM | COLOR_PAIR(STANDARD_COLORS));
+          mvaddch(i, j,
+                  this->matrix[i][j] | A_DIM | COLOR_PAIR(STANDARD_COLORS));
           break;
         default:
-          mvaddch(i, j, this->next[i][j] | COLOR_PAIR(STANDARD_COLORS));
+          mvaddch(i, j, this->matrix[i][j] | COLOR_PAIR(STANDARD_COLORS));
         }
       } else {
-        switch (next[i][j]) {
+        switch (matrix[i][j]) {
         case GHOST_ICON:
-          mvaddch(i, j, this->next[i][j] | A_BOLD | A_STANDOUT);
+          mvaddch(i, j, this->matrix[i][j] | A_BOLD | A_STANDOUT);
           break;
         case PACMAN_ICON:
-          mvaddch(i, j, this->next[i][j] | A_BOLD);
+          mvaddch(i, j, this->matrix[i][j] | A_BOLD);
           break;
         case DOT:
-          mvaddch(i, j, this->next[i][j] | A_DIM);
+          mvaddch(i, j, this->matrix[i][j] | A_DIM);
           break;
         default:
-          mvaddch(i, j, this->next[i][j] | A_NORMAL);
+          mvaddch(i, j, this->matrix[i][j] | A_NORMAL);
         }
       }
     }
@@ -143,47 +137,14 @@ void Screen::draw(int score, bool paused) {
     }
   }
 
-  this->current_mutex->unlock();
   this->score_mutex->unlock();
-  this->next_mutex->unlock();
-}
-
-void Screen::redraw(int score) {
-  this->next_mutex->lock();
-  this->current_mutex->lock();
-  for (unsigned int i = 0; i < this->n_rows; i++) {
-    for (unsigned int j = 0; j < this->n_cols; j++) {
-      // only update chars that changed
-      if (this->current[i][j] != this->next[i][j]) {
-        mvaddch(i, j, this->next[i][j]);
-        this->current[i][j] = this->next[i][j];
-      }
-    }
-  }
-  this->current_mutex->unlock();
-  this->next_mutex->unlock();
-
-  // only update score if it also changed
-  this->score_mutex->lock();
-  if (score != (int)this->score) {
-    this->score = score;
-
-    if (score >= 0 && this->n_dots) {
-      char score_str[20];
-      sprintf(score_str, "SCORE: %d/%d", score, this->n_dots);
-
-      attron(A_UNDERLINE);
-      mvaddstr(0, this->n_cols + this->right_margin, score_str);
-      attroff(A_UNDERLINE);
-    }
-  }
-  this->score_mutex->unlock();
+  this->matrix_mutex->unlock();
 }
 
 char Screen::get_char(Position pos) {
-  this->next_mutex->lock();
-  char c = this->next[pos.y][pos.x];
-  this->next_mutex->unlock();
+  this->matrix_mutex->lock();
+  char c = this->matrix[pos.y][pos.x];
+  this->matrix_mutex->unlock();
 
   return c;
 };
@@ -195,9 +156,9 @@ unsigned int Screen::get_n_cols() { return this->n_cols; };
 unsigned int Screen::get_n_dots() { return this->n_dots; };
 
 void Screen::set_char(Position pos, char value) {
-  this->next_mutex->lock();
-  this->next[pos.y][pos.x] = value;
-  this->next_mutex->unlock();
+  this->matrix_mutex->lock();
+  this->matrix[pos.y][pos.x] = value;
+  this->matrix_mutex->unlock();
 }
 
 void Screen::set_chars(vector<Position> positions, vector<char> values) {
@@ -206,11 +167,11 @@ void Screen::set_chars(vector<Position> positions, vector<char> values) {
     return;
   }
 
-  this->next_mutex->lock();
+  this->matrix_mutex->lock();
   for (int i = 0; i < size; i++) {
-    this->next[positions[i].y][positions[i].x] = values[i];
+    this->matrix[positions[i].y][positions[i].x] = values[i];
   }
-  this->next_mutex->unlock();
+  this->matrix_mutex->unlock();
 }
 
 bool Screen::position_valid(Position pos) {
