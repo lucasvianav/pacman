@@ -10,6 +10,7 @@
 
 class GameController {
 private:
+  // semaphores
   mutex paused_mutex;
   mutex score_mutex;
   mutex game_over_mutex;
@@ -110,7 +111,10 @@ public:
 
 class Pacman : public Character {
 private:
+  /* Direction Pacman is headed. */
   Direction direction;
+
+  // semaphores
   mutex position_mutex;
   mutex direction_mutex;
 
@@ -129,6 +133,7 @@ public:
 
 class Ghost : public Character {
 private:
+  // semaphore
   mutex overwritten_char_mutex;
 
   /* The position the ghost was last in. */

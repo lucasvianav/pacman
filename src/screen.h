@@ -11,6 +11,7 @@ using namespace std;
 
 class Screen {
 private:
+  // semaphores
   mutex *matrix_mutex;
   mutex *score_mutex;
 
