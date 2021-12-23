@@ -38,6 +38,8 @@ Screen::Screen(string name) {
 
   int x = -1, y = 0;
 
+  bool invalid_portal_qnt = false;
+
   this->matrix.push_back({});
   while (f) {
     tmp_char = f.get();
@@ -64,10 +66,13 @@ Screen::Screen(string name) {
     } else if (tmp_char == DOT_ICON) {
       this->n_dots++;
     } else if (tmp_char == PORTAL_ICON) {
-      if (this->portal_position_1) {
-        this->portal_position_2 = tmp_pos;
-      } else {
+      if (!this->portal_position_1) {
         this->portal_position_1 = tmp_pos;
+      } else if (!this->portal_position_2) {
+        this->portal_position_2 = tmp_pos;
+      } else { // if there already are two portals
+        this->matrix[y][x] = PORTAL_ICON;
+        invalid_portal_qnt = true;
       }
     } else if (tmp_char == BARRIER_ICON) {
       this->barrier_positions.push_back({x, y});
@@ -76,17 +81,32 @@ Screen::Screen(string name) {
 
   f.close();
 
-  // if the portal positions are invalid, exit with error code
-  // invalid cases are:
+  // if the portal positions are invalid, they shouldn't be treated as
+  // portals. invalid cases are:
   // - one position is assigned, but the other isn't
   // - the positions are the same
   // - the positions aren't aligned in neither axis
+  // - there are more than two portals
   if (!this->portal_position_1 != !this->portal_position_2 ||
       (this->portal_position_1.x != this->portal_position_2.x &&
        this->portal_position_1.y != this->portal_position_2.y) ||
       (this->portal_position_1 == this->portal_position_2 &&
-       this->portal_position_1 && this->portal_position_2)) {
-    exit(1);
+       this->portal_position_1 && this->portal_position_2) ||
+      invalid_portal_qnt) {
+
+    // reset portal 1
+    if (this->portal_position_1) {
+      this->matrix[this->portal_position_1.y][this->portal_position_1.x] =
+          PORTAL_ICON;
+      this->portal_position_1 = Position();
+    }
+
+    // reset portal 2
+    if (this->portal_position_2) {
+      this->matrix[this->portal_position_2.y][this->portal_position_2.x] =
+          PORTAL_ICON;
+      this->portal_position_2 = Position();
+    }
   }
 
   // last element will be an empty row
