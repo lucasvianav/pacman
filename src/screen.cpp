@@ -36,19 +36,26 @@ Screen::Screen(string name) {
   char tmp_char;
   Position tmp_pos;
 
-  unsigned int x = -1, y = 0;
+  int x = -1, y = 0;
+
+  // Are there either only one or more than two portals?
+  bool invalid_portal_qnt = false;
 
   this->matrix.push_back({});
   while (f) {
     tmp_char = f.get();
 
-    if (tmp_char != '\n') {
+    if (tmp_char == PORTAL_ICON || tmp_char == BARRIER_ICON) {
+      this->matrix.back().push_back(SPACE_ICON);
+      x++;
+    } else if (tmp_char != '\n') {
       this->matrix.back().push_back(tmp_char);
       x++;
     } else {
       this->matrix.push_back({});
       y++;
       x = -1;
+      continue;
     }
 
     tmp_pos = {x, y};
@@ -57,12 +64,52 @@ Screen::Screen(string name) {
       this->pacman_posision = tmp_pos;
     } else if (tmp_char == GHOST_ICON) {
       this->ghosts_positions.push_back(tmp_pos);
-    } else if (tmp_char == DOT) {
+    } else if (tmp_char == DOT_ICON) {
       this->n_dots++;
+    } else if (tmp_char == PORTAL_ICON) {
+      if (!this->portal_position_1) {
+        this->portal_position_1 = tmp_pos;
+        invalid_portal_qnt = true; // only portal portal
+      } else if (!this->portal_position_2) {
+        this->portal_position_2 = tmp_pos;
+        invalid_portal_qnt = false; // exactly two portals
+      } else {
+        this->matrix[y][x] = PORTAL_ICON;
+        invalid_portal_qnt = true; // more than two portals
+      }
+    } else if (tmp_char == BARRIER_ICON) {
+      this->barrier_positions.push_back({x, y});
     }
   }
 
   f.close();
+
+  // if the portal positions are invalid, they shouldn't be treated as
+  // portals. invalid cases are:
+  // - there is only one portal
+  // - there are more than two portals
+  // - the positions are the same
+  // - the positions aren't aligned in neither axis
+  if ((this->portal_position_1.x != this->portal_position_2.x &&
+       this->portal_position_1.y != this->portal_position_2.y) ||
+      (this->portal_position_1 == this->portal_position_2 &&
+       this->portal_position_1 && this->portal_position_2) ||
+      invalid_portal_qnt) {
+
+    // reset portal 1
+    if (this->portal_position_1) {
+      this->matrix[this->portal_position_1.y][this->portal_position_1.x] =
+          PORTAL_ICON;
+      this->portal_position_1 = Position();
+    }
+
+    // reset portal 2
+    if (this->portal_position_2) {
+      this->matrix[this->portal_position_2.y][this->portal_position_2.x] =
+          PORTAL_ICON;
+      this->portal_position_2 = Position();
+    }
+  }
 
   // last element will be an empty row
   this->matrix.pop_back();
@@ -115,7 +162,7 @@ void Screen::draw(int score, bool paused) {
           mvaddch(i, j,
                   this->matrix[i][j] | A_BOLD | COLOR_PAIR(PACMAN_COLORS));
           break;
-        case DOT:
+        case DOT_ICON:
           mvaddch(i, j,
                   this->matrix[i][j] | A_DIM | COLOR_PAIR(STANDARD_COLORS));
           break;
@@ -130,7 +177,7 @@ void Screen::draw(int score, bool paused) {
         case PACMAN_ICON:
           mvaddch(i, j, this->matrix[i][j] | A_BOLD);
           break;
-        case DOT:
+        case DOT_ICON:
           mvaddch(i, j, this->matrix[i][j] | A_DIM);
           break;
         default:
@@ -194,13 +241,13 @@ void Screen::set_chars(vector<Position> positions, vector<char> values) {
 }
 
 bool Screen::position_valid(Position pos) {
-  return (pos.x >= 0 && pos.x < this->n_cols) &&
-         (pos.y >= 0 && pos.y < this->n_rows);
+  return (pos.x >= 0 && pos.x < (int)this->n_cols) &&
+         (pos.y >= 0 && pos.y < (int)this->n_rows);
 }
 
 bool Screen::is_walkable(Position pos) {
   auto c = this->get_char(pos);
-  return c == DOT || c == SPACE || c == PACMAN_ICON;
+  return c == DOT_ICON || c == SPACE_ICON || c == PACMAN_ICON;
 }
 
 vector<Position> Screen::get_adjacency_list(Position pos) {
@@ -218,7 +265,7 @@ vector<Position> Screen::get_adjacency_list(Position pos) {
   }
 
   // to the right
-  if (pos.x != this->get_n_cols() - 1) {
+  if (pos.x != (int)this->get_n_cols() - 1) {
     neighbor.x = pos.x + 1;
     neighbor.y = pos.y;
 
@@ -228,7 +275,7 @@ vector<Position> Screen::get_adjacency_list(Position pos) {
   }
 
   // to the bottom
-  if (pos.y != this->get_n_rows() - 1) {
+  if (pos.y != (int)this->get_n_rows() - 1) {
     neighbor.x = pos.x;
     neighbor.y = pos.y + 1;
 

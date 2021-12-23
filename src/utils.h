@@ -5,10 +5,12 @@
 #include <vector>
 
 // icons
-#define DOT '.'
+#define DOT_ICON '.'
 #define GHOST_ICON '%'
 #define PACMAN_ICON '@'
-#define SPACE ' '
+#define SPACE_ICON ' '
+#define PORTAL_ICON '='
+#define BARRIER_ICON '?'
 
 // delays
 #define GHOST_DELAY 300000
@@ -23,11 +25,14 @@ enum class AI { DEPTH, BREADTH, BEST, RANDOM };
 
 struct Position {
 public:
+  Position();
+  Position(int x, int y);
+
   /* Position in the x-axis. */
-  unsigned int x;
+  int x;
 
   /* Position in the y-axis. */
-  unsigned int y;
+  int y;
 
   /* Moves the point one position to a given direction. */
   Position move(Direction dir);
@@ -36,9 +41,11 @@ public:
   bool operator!=(const Position p);
   bool operator<(const Position p) const;
   bool operator>(const Position p) const;
+  bool operator!();
   double operator-(const Position p);
   Position &operator=(const Position &p);
   operator std::string();
+  operator bool();
 };
 
 #endif
