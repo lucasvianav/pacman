@@ -42,7 +42,7 @@ Screen::Screen(string name) {
   while (f) {
     tmp_char = f.get();
 
-    if (tmp_char == PORTAL_ICON) {
+    if (tmp_char == PORTAL_ICON || tmp_char == BARRIER_ICON) {
       this->matrix.back().push_back(SPACE_ICON);
       x++;
     } else if (tmp_char != '\n') {
@@ -69,6 +69,8 @@ Screen::Screen(string name) {
       } else {
         this->portal_position_1 = tmp_pos;
       }
+    } else if (tmp_char == BARRIER_ICON) {
+      this->barrier_positions.push_back({x, y});
     }
   }
 

@@ -45,6 +45,7 @@ GameController::~GameController() {
 Position GameController::move(Position old_pos, Position new_pos, char *overwritten_char) {
   if (this->screen.position_valid(new_pos) && old_pos != new_pos) {
     char old_pos_cur_char = this->screen.get_char(old_pos);
+    bool is_pacman = old_pos_cur_char == PACMAN_ICON;
 
     // if the character just entered a
     // portal, teleport it to the other one
@@ -55,8 +56,6 @@ Position GameController::move(Position old_pos, Position new_pos, char *overwrit
     }
 
     char new_pos_cur_char = this->screen.get_char(new_pos);
-
-    bool is_pacman = old_pos_cur_char == PACMAN_ICON;
 
     char old_pos_new_char = overwritten_char ? *overwritten_char : SPACE_ICON;
     char new_pos_new_char = old_pos_cur_char;
@@ -87,6 +86,12 @@ Position GameController::move(Position old_pos, Position new_pos, char *overwrit
       break;
 
     case SPACE_ICON:
+      // don't let Pacman go through a barrier if it's heading there
+      for(auto barrier_pos : this->screen.barrier_positions) {
+        if (new_pos == barrier_pos && is_pacman) {
+          return old_pos;
+        }
+      }
       break;
 
     default:
@@ -199,7 +204,16 @@ bool GameController::is_paused() {
 }
 
 bool GameController::direction_blocked(Position pos, Direction dir) {
-  return !this->screen.is_walkable(pos.move(dir));
+  pos = pos.move(dir);
+
+  // don't let Pacman turn to the direction of a barrier
+  for(auto barrier_pos : this->screen.barrier_positions) {
+    if (pos == barrier_pos) {
+      return true;
+    }
+  }
+
+  return !this->screen.is_walkable(pos);
 }
 
 vector<Position> GameController::get_adjacency_list(Position pos) {

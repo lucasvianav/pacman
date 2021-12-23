@@ -72,16 +72,22 @@ public:
   /* Getter for the adjacency list of a given position. */
   vector<Position> get_adjacency_list(Position pos);
 
-  /* The positions of all ghosts in the screen. */
+  /* The positions of all ghosts in the map. */
   vector<Position> ghosts_positions;
 
-  /* The positions of the first portal. */
+  /*
+   * The positions of all barriers in the map. Ghosts
+   * are allowed to cross them, but Pacman isn't.
+   */
+  vector<Position> barrier_positions;
+
+  /* The positions of the first portal in the map. */
   Position portal_position_1;
 
-  /* The positions of the second portal. */
+  /* The positions of the second portal in the map. */
   Position portal_position_2;
 
-  /* The positions of Pacman in the screen. */
+  /* The positions of Pacman in the map. */
   Position pacman_posision;
 };
 

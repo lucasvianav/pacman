@@ -78,7 +78,7 @@ public:
   /* Is the game paused? */
   bool is_paused();
 
-  /* Check if a position is blocked from a certain direction. */
+  /* Check if a position is blocked from a certain direction for Pacman. */
   bool direction_blocked(Position pos, Direction dir);
 
   /* Getter for the adjacency list of a given position. */

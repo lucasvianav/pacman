@@ -10,6 +10,7 @@
 #define PACMAN_ICON '@'
 #define SPACE_ICON ' '
 #define PORTAL_ICON '='
+#define BARRIER_ICON '?'
 
 // delays
 #define GHOST_DELAY 300000
