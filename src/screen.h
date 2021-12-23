@@ -75,6 +75,12 @@ public:
   /* The positions of all ghosts in the screen. */
   vector<Position> ghosts_positions;
 
+  /* The positions of the first portal. */
+  Position portal_position_1;
+
+  /* The positions of the second portal. */
+  Position portal_position_2;
+
   /* The positions of Pacman in the screen. */
   Position pacman_posision;
 };

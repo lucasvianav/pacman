@@ -45,11 +45,20 @@ GameController::~GameController() {
 Position GameController::move(Position old_pos, Position new_pos, char *overwritten_char) {
   if (this->screen.position_valid(new_pos) && old_pos != new_pos) {
     char old_pos_cur_char = this->screen.get_char(old_pos);
+
+    // if the character just entered a
+    // portal, teleport it to the other one
+    if (new_pos == this->screen.portal_position_1) {
+      new_pos = this->screen.portal_position_2;
+    } else if (new_pos == this->screen.portal_position_2) {
+      new_pos = this->screen.portal_position_1;
+    }
+
     char new_pos_cur_char = this->screen.get_char(new_pos);
 
     bool is_pacman = old_pos_cur_char == PACMAN_ICON;
 
-    char old_pos_new_char = overwritten_char ? *overwritten_char : SPACE;
+    char old_pos_new_char = overwritten_char ? *overwritten_char : SPACE_ICON;
     char new_pos_new_char = old_pos_cur_char;
 
     switch (new_pos_cur_char) {
@@ -65,7 +74,7 @@ Position GameController::move(Position old_pos, Position new_pos, char *overwrit
       this->quit();
       break;
 
-    case DOT:
+    case DOT_ICON:
       if (is_pacman) {
         this->score_mutex.lock();
         this->score++;
@@ -77,7 +86,7 @@ Position GameController::move(Position old_pos, Position new_pos, char *overwrit
       }
       break;
 
-    case SPACE:
+    case SPACE_ICON:
       break;
 
     default:
