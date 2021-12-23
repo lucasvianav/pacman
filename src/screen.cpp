@@ -38,6 +38,7 @@ Screen::Screen(string name) {
 
   int x = -1, y = 0;
 
+  // Are there either only one or more than two portals?
   bool invalid_portal_qnt = false;
 
   this->matrix.push_back({});
@@ -68,11 +69,13 @@ Screen::Screen(string name) {
     } else if (tmp_char == PORTAL_ICON) {
       if (!this->portal_position_1) {
         this->portal_position_1 = tmp_pos;
+        invalid_portal_qnt = true; // only portal portal
       } else if (!this->portal_position_2) {
         this->portal_position_2 = tmp_pos;
-      } else { // if there already are two portals
+        invalid_portal_qnt = false; // exactly two portals
+      } else {
         this->matrix[y][x] = PORTAL_ICON;
-        invalid_portal_qnt = true;
+        invalid_portal_qnt = true; // more than two portals
       }
     } else if (tmp_char == BARRIER_ICON) {
       this->barrier_positions.push_back({x, y});
@@ -83,12 +86,11 @@ Screen::Screen(string name) {
 
   // if the portal positions are invalid, they shouldn't be treated as
   // portals. invalid cases are:
-  // - one position is assigned, but the other isn't
+  // - there is only one portal
+  // - there are more than two portals
   // - the positions are the same
   // - the positions aren't aligned in neither axis
-  // - there are more than two portals
-  if (!this->portal_position_1 != !this->portal_position_2 ||
-      (this->portal_position_1.x != this->portal_position_2.x &&
+  if ((this->portal_position_1.x != this->portal_position_2.x &&
        this->portal_position_1.y != this->portal_position_2.y) ||
       (this->portal_position_1 == this->portal_position_2 &&
        this->portal_position_1 && this->portal_position_2) ||
