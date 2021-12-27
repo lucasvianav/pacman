@@ -12,5 +12,6 @@ RUN apk add ncurses-libs \
     make
 
 WORKDIR /app
+RUN make all
 
 ENTRYPOINT /bin/bash
