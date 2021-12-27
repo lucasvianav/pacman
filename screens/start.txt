@@ -10,7 +10,7 @@
   |           Gustavo Schimiti 7564002        |
   |          Luca Gomes Urssi 10425396        |
   |        Lucas Viana Vilela 10748409        |
-  |     Rafael Galvao Polakiewicz 9846045     |
+  |     Rafael Marques Polakiewicz 9846045    |
   |                                           |
   |                                           |
   |                 Controls:                 |
