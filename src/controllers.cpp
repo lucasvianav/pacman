@@ -286,8 +286,12 @@ void Pacman::move() {
     return;
   }
 
+  this->direction_mutex.lock();
+  Direction dir = this->direction;
+  this->direction_mutex.unlock();
+
   this->position_mutex.lock();
-  Character::move(this->direction, NULL);
+  Character::move(dir, NULL);
   this->position_mutex.unlock();
 }
 
