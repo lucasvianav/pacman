@@ -4,8 +4,8 @@ Repository for the main project for the Operating Systems course offered for com
 
 Simple ASCII implementation of the classic Pacman, focused on using multiple threads and semaphores in order to better understand Operating Systems' concepts.
 
-<div style="display: flex; justify-content: center; gap: 10px">
-  <img src="./images/pacman-1.png" alt="Start Screen" title="Start Screen"/>
+<div align="center">
+  <img src="./images/pacman-1.png" alt="Start Screen" title="Start Screen" height="562px"/>
   <img src="./images/pacman-2.png" alt="Game Screen" title="Game Screen"/>
 </div>
 
