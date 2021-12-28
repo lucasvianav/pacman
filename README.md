@@ -4,6 +4,11 @@ Repository for the main project for the Operating Systems course offered for com
 
 Simple ASCII implementation of the classic Pacman, focused on using multiple threads and semaphores in order to better understand Operating Systems' concepts.
 
+<div style="display: flex; justify-content: center; gap: 10px">
+  <img src="./images/pacman-1.png" alt="Start Screen" title="Start Screen"/>
+  <img src="./images/pacman-2.png" alt="Game Screen" title="Game Screen"/>
+</div>
+
 ## Compiling and executing
 
 In a Unix-based system, you can execute:
@@ -28,7 +33,7 @@ A Dockerfile is also provided to play the game inside a container. You can use:
 docker build -t name_you_want_for_the_image path/to/the/project_root
 ```
 
-once to build the Docker image and 
+once to build the Docker image and
 
 ```bash
 docker run -it image_name
