@@ -9,7 +9,7 @@ Simple ASCII implementation of the classic Pacman, focused on using multiple thr
   <img src="./images/pacman-2.png" alt="Game Screen" title="Game Screen"/>
 </div>
 
-## Compiling and executing
+## Compiling and executing <a id="exec"></a>
 
 In a Unix-based system, you can execute:
 
@@ -39,4 +39,4 @@ once to build the Docker image and
 docker run -it image_name
 ```
 
-whenever, to run the game inside a container.
+whenever, to run a terminal inside a container. Then you can use the commands in the <a href="#exec">previous section</a> to compile and run the game.
